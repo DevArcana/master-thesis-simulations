@@ -37,9 +37,9 @@ public class Simulator : Game
     private void ImGuiFramerate()
     {
         var framerate = ImGui.GetIO().Framerate;
-        ImGui.Text($"Application average {1000f / framerate:F3} ms/frame ({framerate:F1} FPS)");
+        ImGui.Text($"frame time: {1000f / framerate:F3} ms/frame ({framerate:F1} FPS)");
 
-        var fps = (int) Math.Round(1000d / TargetElapsedTime.TotalMilliseconds) / 30 - 1;
+        var fps = (int)Math.Round(1000d / TargetElapsedTime.TotalMilliseconds) / 30 - 1;
         if (ImGui.Combo("FPS", ref fps, "30\060\090\0120\0"))
         {
             TargetElapsedTime = TimeSpan.FromMilliseconds(1000d / ((fps + 1) * 30));
