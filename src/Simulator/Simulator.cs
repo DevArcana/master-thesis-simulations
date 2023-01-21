@@ -1,15 +1,16 @@
 ﻿using System;
 using ImGuiNET;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Simulator.Gui;
+using Simulator.Scenes;
 
 namespace Simulator;
 
 public class Simulator : Game
 {
     private ImGuiRenderer _imGuiRenderer;
+    private Scene _scene = null;
 
     public Simulator()
     {
@@ -46,11 +47,32 @@ public class Simulator : Game
         }
     }
 
+    private void ImGuiScenes()
+    {
+        if (_scene is not null)
+        {
+            if (ImGui.Button("Close scene"))
+            {
+                _scene.Destroy();
+            }
+        }
+        else
+        {
+            if (ImGui.Button("Open scene"))
+            {
+                _scene = new SampleScene();
+            }
+        }
+    }
+
     protected virtual void ImGuiLayout()
     {
         ImGui.Begin("Simulator", ImGuiWindowFlags.AlwaysAutoResize);
         ImGuiFramerate();
+        ImGuiScenes();
         ImGui.End();
+
+        _scene?.DrawGui();
     }
 
     protected override void Update(GameTime gameTime)
@@ -60,6 +82,12 @@ public class Simulator : Game
             Exit();
         }
 
+        _scene?.Update(gameTime);
+        if (_scene is { Status: SceneStatus.Destroyed })
+        {
+            _scene = null;
+        }
+
         base.Update(gameTime);
     }
 
@@ -67,6 +95,8 @@ public class Simulator : Game
     {
         GraphicsDevice.Clear(Color.Black);
 
+        _scene?.Draw(gameTime);
+        
         _imGuiRenderer.BeforeLayout(gameTime);
         ImGuiLayout();
         _imGuiRenderer.AfterLayout();
