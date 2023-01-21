@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ImGuiNET;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Simulator;
 
@@ -15,12 +16,16 @@ public enum SceneStatus
 
 public abstract class Scene
 {
-    protected Scene(string name)
+    protected Scene(string name, GraphicsDevice graphicsDevice)
     {
         Name = name;
+        GraphicsDevice = graphicsDevice;
+        SpriteBatch = new SpriteBatch(graphicsDevice);
     }
 
     public string Name { get; }
+    protected GraphicsDevice GraphicsDevice;
+    protected SpriteBatch SpriteBatch;
     public SceneStatus Status { get; private set; }
 
     private readonly Stack<string> _logs = new();
@@ -93,7 +98,9 @@ public abstract class Scene
     {
         if (Status == SceneStatus.Created)
         {
+            SpriteBatch.Begin();
             OnDraw(gameTime);
+            SpriteBatch.End();
         }
     }
 }

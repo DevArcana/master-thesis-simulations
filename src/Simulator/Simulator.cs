@@ -1,9 +1,11 @@
 ﻿using System;
 using ImGuiNET;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Simulator.Gui;
 using Simulator.Scenes;
+using Simulator.Scenes.GameOfLife;
 
 namespace Simulator;
 
@@ -49,18 +51,23 @@ public class Simulator : Game
 
     private void ImGuiScenes()
     {
+        ImGui.Text("Scenes");
         if (_scene is not null)
         {
-            if (ImGui.Button("Close scene"))
+            if (ImGui.Button($"Close [{_scene.Name}]"))
             {
                 _scene.Destroy();
             }
         }
         else
         {
-            if (ImGui.Button("Open scene"))
+            if (ImGui.Button("[Sample]"))
             {
-                _scene = new SampleScene();
+                _scene = new SampleScene(GraphicsDevice);
+            }
+            if (ImGui.Button("[Game of Life]"))
+            {
+                _scene = new GameOfLifeScene(GraphicsDevice);
             }
         }
     }

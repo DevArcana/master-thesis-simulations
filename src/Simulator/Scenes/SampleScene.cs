@@ -1,10 +1,11 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Simulator.Scenes;
 
 public class SampleScene : Scene
 {
-    public SampleScene() : base("Sample scene")
+    public SampleScene(GraphicsDevice graphicsDevice) : base("Sample scene", graphicsDevice)
     {
     }
 
