@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Simulator.Utils;
 
 namespace Simulator.Widgets;
@@ -28,6 +29,29 @@ public class BooleanGridWidget
         _cellGap = cellGap;
         _pixel = new Texture2D(gfx, 1, 1);
         _pixel.SetData(new[] { Color.White });
+    }
+
+    private bool _clicking;
+    public int ClickX;
+    public int ClickY;
+    public bool Clicked()
+    {
+        var state = Mouse.GetState();
+
+        if (state.LeftButton == ButtonState.Pressed)
+        {
+            _clicking = true;
+        }
+        else if (state.LeftButton == ButtonState.Released && _clicking)
+        {
+            _clicking = false;
+            var unit = _cellGap + _cellSize;
+            ClickX = state.X / unit;
+            ClickY = state.Y / unit;
+            return true;
+        }
+
+        return false;
     }
 
     public void Draw(SpriteBatch spriteBatch)
