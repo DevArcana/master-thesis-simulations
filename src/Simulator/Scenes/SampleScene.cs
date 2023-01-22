@@ -28,4 +28,9 @@ public class SampleScene : Scene
     {
         
     }
+
+    protected override void OnGui()
+    {
+        
+    }
 }

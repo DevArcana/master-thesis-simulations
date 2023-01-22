@@ -23,9 +23,11 @@ public abstract class Scene
         SpriteBatch = new SpriteBatch(graphicsDevice);
     }
 
-    public string Name { get; }
-    protected GraphicsDevice GraphicsDevice;
-    protected SpriteBatch SpriteBatch;
+    public readonly string Name;
+
+    protected readonly GraphicsDevice GraphicsDevice;
+    protected readonly SpriteBatch SpriteBatch;
+
     public SceneStatus Status { get; private set; }
 
     private readonly Stack<string> _logs = new();
@@ -43,18 +45,7 @@ public abstract class Scene
 
     protected abstract void OnDraw(GameTime gameTime);
 
-    protected virtual void OnGui()
-    {
-        ImGui.Begin(Name, ImGuiWindowFlags.AlwaysAutoResize);
-        ImGui.BeginListBox("logs");
-        foreach (var log in _logs)
-        {
-            ImGui.Text(log);
-        }
-
-        ImGui.EndListBox();
-        ImGui.End();
-    }
+    protected abstract void OnGui();
 
     public void Destroy()
     {
@@ -66,6 +57,15 @@ public abstract class Scene
 
     public void DrawGui()
     {
+        ImGui.Begin($"[{Name}] logs", ImGuiWindowFlags.AlwaysAutoResize);
+        ImGui.BeginListBox("logs");
+        foreach (var log in _logs)
+        {
+            ImGui.Text(log);
+        }
+        ImGui.EndListBox();
+        ImGui.End();
+        
         OnGui();
     }
 
