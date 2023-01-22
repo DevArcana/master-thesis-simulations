@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Input;
 using Simulator.Gui;
 using Simulator.Scenes;
 using Simulator.Scenes.GameOfLife;
+using Simulator.Scenes.MapOverview;
 
 namespace Simulator;
 
@@ -63,11 +64,15 @@ public class Simulator : Game
         {
             if (ImGui.Button("[Sample]"))
             {
-                _scene = new SampleScene(GraphicsDevice);
+                _scene = new SampleScene(GraphicsDevice,_imGuiRenderer);
             }
             if (ImGui.Button("[Game of Life]"))
             {
-                _scene = new GameOfLifeScene(GraphicsDevice);
+                _scene = new GameOfLifeScene(GraphicsDevice,_imGuiRenderer);
+            }
+            if (ImGui.Button("[Map Overview]"))
+            {
+                _scene = new MapOverviewScene(GraphicsDevice,_imGuiRenderer);
             }
         }
     }
@@ -100,6 +105,7 @@ public class Simulator : Game
 
     protected override void Draw(GameTime gameTime)
     {
+        GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
         GraphicsDevice.Clear(Color.Black);
 
         _scene?.Draw(gameTime);

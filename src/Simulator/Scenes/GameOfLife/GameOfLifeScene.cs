@@ -1,6 +1,7 @@
 using ImGuiNET;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Simulator.Gui;
 using Simulator.Utils;
 using Simulator.Widgets;
 
@@ -18,7 +19,7 @@ public class GameOfLifeScene : Scene
     private Grid<bool> _grid;
     private BooleanGridWidget _gridWidget;
 
-    public GameOfLifeScene(GraphicsDevice graphicsDevice) : base("Game of Life", graphicsDevice)
+    public GameOfLifeScene(GraphicsDevice graphicsDevice, ImGuiRenderer imGuiRenderer) : base("Game of Life", graphicsDevice, imGuiRenderer)
     {
         // default value
         _width = 16;

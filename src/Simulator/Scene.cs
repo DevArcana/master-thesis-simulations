@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ImGuiNET;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Simulator.Gui;
 
 namespace Simulator;
 
@@ -16,16 +17,18 @@ public enum SceneStatus
 
 public abstract class Scene
 {
-    protected Scene(string name, GraphicsDevice graphicsDevice)
+    protected Scene(string name, GraphicsDevice graphicsDevice, ImGuiRenderer imGuiRenderer)
     {
         Name = name;
         GraphicsDevice = graphicsDevice;
+        ImGuiRenderer = imGuiRenderer;
         SpriteBatch = new SpriteBatch(graphicsDevice);
     }
 
     public readonly string Name;
 
     protected readonly GraphicsDevice GraphicsDevice;
+    protected readonly ImGuiRenderer ImGuiRenderer;
     protected readonly SpriteBatch SpriteBatch;
 
     public SceneStatus Status { get; private set; }
@@ -98,7 +101,7 @@ public abstract class Scene
     {
         if (Status == SceneStatus.Created)
         {
-            SpriteBatch.Begin();
+            SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
             OnDraw(gameTime);
             SpriteBatch.End();
         }
