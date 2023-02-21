@@ -1,13 +1,11 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using ImGuiNET;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Simulator.Gui;
-using Vector2 = System.Numerics.Vector2;
+using Simulator.Scenes.MapOverview.Widgets;
+using Simulator.Widgets;
 
 namespace Simulator.Scenes.MapOverview;
 
@@ -15,10 +13,13 @@ public class MapOverviewScene : Scene
 {
     private readonly string[] _maps;
     private int _selectedMap;
-    private Texture2D _color;
-    private IntPtr _colorIntPtr;
-    
-    public MapOverviewScene(GraphicsDevice graphicsDevice, ImGuiRenderer imGuiRenderer) : base("Map Overview", graphicsDevice, imGuiRenderer)
+    private const int Scale = 10;
+
+    private Widget _colorMapWidget;
+    private Widget _pathfindingWidget;
+
+    public MapOverviewScene(GraphicsDevice graphicsDevice, ImGuiRenderer imGuiRenderer) : base("Map Overview",
+        graphicsDevice, imGuiRenderer)
     {
         _maps = Directory
             .EnumerateFiles("Images")
@@ -33,45 +34,43 @@ public class MapOverviewScene : Scene
     private void ReloadMapFromDisk()
     {
         var map = _maps[_selectedMap];
-        _color = Texture2D.FromFile(GraphicsDevice, Path.Join("Images", $"{map}_color.png"));
-        _colorIntPtr = ImGuiRenderer.BindTexture(_color);
+        var color = Texture2D.FromFile(GraphicsDevice, Path.Join("Images", $"{map}_color.png"));
+        _colorMapWidget = new ColorMapWidget(color, Scale);
+        _pathfindingWidget = new PathfindingWidget(GraphicsDevice, Scale);
     }
 
     protected override void OnCreate()
     {
-        
     }
 
     protected override void OnUpdate(GameTime gameTime)
     {
-        
+        _colorMapWidget?.Update(gameTime);
+        _pathfindingWidget?.Update(gameTime);
     }
 
     protected override void OnDestroy()
     {
-        
     }
 
     protected override void OnDraw(GameTime gameTime)
     {
-        if (_color is not null)
-        {
-            SpriteBatch.Draw(_color, new Rectangle(0, 0, _color.Width * 6, _color.Height * 6), Color.White);
-        }
+        _colorMapWidget?.Draw(GraphicsDevice, SpriteBatch, gameTime);
+        _pathfindingWidget?.Draw(GraphicsDevice, SpriteBatch, gameTime);
     }
 
     protected override void OnGui()
     {
         ImGui.Begin("Select map", ImGuiWindowFlags.AlwaysAutoResize);
+        
         if (ImGui.Combo("maps", ref _selectedMap, _maps, _maps.Length))
         {
             ReloadMapFromDisk();
         }
 
-        if (_color is not null)
-        {
-            ImGui.Image(_colorIntPtr, new Vector2(200, 200));
-        }
+        _colorMapWidget?.UpdateGui();
+        _pathfindingWidget?.UpdateGui();
+
         ImGui.End();
     }
 }
