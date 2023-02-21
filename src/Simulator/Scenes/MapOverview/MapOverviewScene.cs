@@ -16,6 +16,7 @@ public class MapOverviewScene : Scene
     private const int Scale = 10;
 
     private Widget _colorMapWidget;
+    private Widget _costMapWidget;
     private Widget _pathfindingWidget;
 
     public MapOverviewScene(GraphicsDevice graphicsDevice, ImGuiRenderer imGuiRenderer) : base("Map Overview",
@@ -36,6 +37,7 @@ public class MapOverviewScene : Scene
         var map = _maps[_selectedMap];
         var color = Texture2D.FromFile(GraphicsDevice, Path.Join("Images", $"{map}_color.png"));
         _colorMapWidget = new ColorMapWidget(color, Scale);
+        _costMapWidget = new CostMapWidget(Scale);
         _pathfindingWidget = new PathfindingWidget(GraphicsDevice, Scale);
     }
 
@@ -46,6 +48,7 @@ public class MapOverviewScene : Scene
     protected override void OnUpdate(GameTime gameTime)
     {
         _colorMapWidget?.Update(gameTime);
+        _costMapWidget?.Update(gameTime);
         _pathfindingWidget?.Update(gameTime);
     }
 
@@ -56,6 +59,7 @@ public class MapOverviewScene : Scene
     protected override void OnDraw(GameTime gameTime)
     {
         _colorMapWidget?.Draw(GraphicsDevice, SpriteBatch, gameTime);
+        _costMapWidget?.Draw(GraphicsDevice, SpriteBatch, gameTime);
         _pathfindingWidget?.Draw(GraphicsDevice, SpriteBatch, gameTime);
     }
 
@@ -69,6 +73,7 @@ public class MapOverviewScene : Scene
         }
 
         _colorMapWidget?.UpdateGui();
+        _costMapWidget?.UpdateGui();
         _pathfindingWidget?.UpdateGui();
 
         ImGui.End();
