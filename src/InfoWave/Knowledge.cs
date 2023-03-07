@@ -7,6 +7,20 @@ public class Knowledge
 
     public void Add(Fact fact)
     {
+        foreach (var known in _facts)
+        {
+            foreach (var knownConflict in known.Conflicts)
+            {
+                foreach (var conflict in fact.Conflicts)
+                {
+                    if (knownConflict == conflict)
+                    {
+                        throw new ConflictingFactException(fact, known);
+                    }
+                }
+            }
+        }
+        
         _facts.Add(fact);
     }
 }

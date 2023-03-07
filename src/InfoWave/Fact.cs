@@ -1,3 +1,3 @@
 ﻿namespace InfoWave;
 
-public record Fact(string Statement);
+public record Fact(string Statement, string[] Conflicts);
