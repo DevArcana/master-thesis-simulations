@@ -4,8 +4,12 @@ public class Actor
 {
     public string Name { get; }
     
+    public IEnumerable<PlotEvent> Knowledge => _knowledge;
+    public IEnumerable<Tag> Tags => _tags;
+
     private readonly HashSet<PlotEvent> _knowledge = new();
-    private readonly List<(Func<PlotEvent, bool>, Action<PlotEvent>)> _behaviours = new();
+    private readonly List<Func<Actor, Actor, bool>> _behaviours = new();
+    private readonly List<Tag> _tags = new();
 
     public Actor(string name)
     {
@@ -15,27 +19,35 @@ public class Actor
     public void Learn(PlotEvent plotEvent)
     {
         _knowledge.Add(plotEvent);
-        
-        foreach (var (precondition, action) in _behaviours)
+    }
+
+    public void AddBehaviour(Func<Actor, Actor, bool> behaviour)
+    {
+        _behaviours.Add(behaviour);
+    }
+    
+    public void AddTag(Tag tag)
+    {
+        _tags.Add(tag);
+    }
+
+    public void InteractWith(Actor actor)
+    {
+        foreach (var behaviour in _behaviours)
         {
-            if (precondition(plotEvent))
+            if (behaviour(this, actor))
             {
-                action(plotEvent);
+                return;
             }
         }
-    }
-
-    public void ShareWith(Actor actor)
-    {
-        foreach (var plotEvent in _knowledge)
+        
+        foreach (var behaviour in actor._behaviours)
         {
-            actor.Learn(plotEvent);
+            if (behaviour(actor, this))
+            {
+                return;
+            }
         }
-    }
-
-    public void AddBehaviour(Func<PlotEvent, bool> precondition, Action<PlotEvent> action)
-    {
-        _behaviours.Add((precondition, action));
     }
     
     public override string ToString()

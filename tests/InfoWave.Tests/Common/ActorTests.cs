@@ -16,8 +16,8 @@ public class ActorTests
     public void LearnsPlotPoints()
     {
         var sut = new Actor("Servant");
-        sut.Learn(new PlotEvent("The king is dead", Array.Empty<EventTag>()));
-        sut.Learn(new PlotEvent("Long live the king", Array.Empty<EventTag>()));
+        sut.Learn(new PlotEvent("The king is dead", Array.Empty<Tag>()));
+        sut.Learn(new PlotEvent("Long live the king", Array.Empty<Tag>()));
         sut.ToString().Should().Be("Servant knows: The king is dead, Long live the king");
     }
 
@@ -25,8 +25,8 @@ public class ActorTests
     public void LearnsOnlyUniquePlotPoints()
     {
         var sut = new Actor("Servant");
-        sut.Learn(new PlotEvent("The king is dead", Array.Empty<EventTag>()));
-        sut.Learn(new PlotEvent("The king is dead", Array.Empty<EventTag>()));
+        sut.Learn(new PlotEvent("The king is dead", Array.Empty<Tag>()));
+        sut.Learn(new PlotEvent("The king is dead", Array.Empty<Tag>()));
         sut.ToString().Should().Be("Servant knows: The king is dead");
     }
 
@@ -36,37 +36,18 @@ public class ActorTests
         // Arrange
         var guardA = new Actor("Guard A");
         var guardB = new Actor("Guard B");
-        var criminal = new Actor("Criminal");
-
-        var crime = new PlotAction(criminal, "{0} stole an apple", new[] { new EventTag("Crime") });
-
-        // Act
-        guardA.Learn(crime);
-        guardA.ShareWith(guardB);
-
-        // Assert
-        guardB.ToString().Should().Be("Guard B knows: Criminal stole an apple");
-    }
-
-    [Test]
-    public void ExecutesBehaviourWhenPlotPointIsLearned()
-    {
-        // Arrange
-        var guard = new Actor("Guard");
-        var criminal = new Actor("Criminal");
-
-        var crime = new PlotAction(criminal, "{0} stole an apple", new[] { new EventTag("Crime") });
-
-        var guardAction = new Mock<Action<PlotEvent>>();
-
-        guard.AddBehaviour(
-            plotEvent => plotEvent.Tags.Any(t => t.Name == "Crime"),
-            guardAction.Object);
+        
+        guardA.AddBehaviour(CommonBehaviours.ExchangesInformation);
+        guardB.AddBehaviour(CommonBehaviours.ExchangesInformation);
+        
+        guardA.Learn(new PlotEvent("The weather is nice today", Array.Empty<Tag>()));
+        guardB.Learn(new PlotEvent("The crops have grown very nicely", Array.Empty<Tag>()));
 
         // Act
-        guard.Learn(crime);
-
+        guardA.InteractWith(guardB);
+        
         // Assert
-        guardAction.Verify(a => a(crime), Times.Once);
+        guardA.ToString().Should().Be("Guard A knows: The weather is nice today, The crops have grown very nicely");
+        guardB.ToString().Should().Be("Guard B knows: The crops have grown very nicely, The weather is nice today");
     }
 }
