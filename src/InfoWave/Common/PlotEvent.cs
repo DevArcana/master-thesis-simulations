@@ -1,6 +1,6 @@
 namespace InfoWave.Common;
 
-public record PlotEvent(string Description, EventTag[] Tags)
+public record PlotEvent(string Description, EventTag[] Tags, params object[] Values)
 {
     public EventTag? GetTag(string name)
     {
@@ -9,6 +9,6 @@ public record PlotEvent(string Description, EventTag[] Tags)
 
     public override string ToString()
     {
-        return Description;
+        return string.Format(Description, Values);
     }
 }
