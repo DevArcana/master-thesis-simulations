@@ -1,134 +1,6 @@
+using InfoWave.EventCalculus;
+
 namespace InfoWave.Tests;
-
-public record Fluent(string Description);
-
-public record Predicate;
-
-public record FluentPredicate(Fluent Fluent) : Predicate;
-
-public record Initiated(Fluent Fluent) : FluentPredicate(Fluent);
-
-public record Terminated(Fluent Fluent) : FluentPredicate(Fluent);
-
-public record EventPredicate(Func<FluentState, IEnumerable<Predicate>> Action) : Predicate;
-
-internal sealed class ReverseIntComparer : IComparer<int>
-{
-    public int Compare(int x, int y) => y.CompareTo(x);
-}
-
-public class FluentState
-{
-    private readonly SortedList<int, HashSet<Predicate>> _state = new(new ReverseIntComparer());
-
-    private int _time = int.MaxValue;
-
-    private void ThrowOnConflict(Predicate predicate, int at)
-    {
-        switch (predicate)
-        {
-            case EventPredicate eventPredicate:
-                var time = _time;
-                _time = at - 1;
-                var predicates = eventPredicate.Action(this);
-                _time = time;
-                foreach (var fluent in predicates)
-                {
-                    ThrowOnConflict(fluent, at);
-                }
-                break;
-            case Initiated initiated:
-                if (_state.TryGetValue(at, out var set) && set.Any(x => x is Terminated terminated && terminated.Fluent == initiated.Fluent))
-                {
-                    throw new InvalidOperationException($"Fluent {initiated.Fluent} is already terminated at {at}");
-                }
-                break;
-            case Terminated terminated:
-                if (_state.TryGetValue(at, out set) && set.Any(x => x is Initiated initiated && initiated.Fluent == terminated.Fluent))
-                {
-                    throw new InvalidOperationException($"Fluent {terminated.Fluent} is already initiated at {at}");
-                }
-                break;
-        }
-    }
-
-    public void Initiate(Fluent fluent, int at)
-    {
-        if (!_state.TryGetValue(at, out var set))
-        {
-            set = new HashSet<Predicate>();
-            _state.Add(at, set);
-        }
-
-        var predicate = new Initiated(fluent);
-        ThrowOnConflict(predicate, at);
-        set.Add(predicate);
-    }
-
-    public void Terminate(Fluent fluent, int at)
-    {
-        if (!_state.TryGetValue(at, out var set))
-        {
-            set = new HashSet<Predicate>();
-            _state.Add(at, set);
-        }
-
-        var predicate = new Terminated(fluent);
-        ThrowOnConflict(predicate, at);
-        set.Add(predicate);
-    }
-
-    public void AddEvent(Func<FluentState, IEnumerable<Predicate>> action, int at)
-    {
-        if (!_state.TryGetValue(at, out var set))
-        {
-            set = new HashSet<Predicate>();
-            _state.Add(at, set);
-        }
-
-        var predicate = new EventPredicate(action);
-        ThrowOnConflict(predicate, at);
-        set.Add(predicate);
-    }
-
-    public bool HoldsAt(Fluent fluent, int at)
-    {
-        foreach (var (_, set) in _state.Where(x => x.Key <= at))
-        {
-            foreach (var predicate in set)
-            {
-                switch (predicate)
-                {
-                    case Initiated initiated when initiated.Fluent == fluent:
-                        return true;
-                    case Terminated terminated when terminated.Fluent == fluent:
-                        return false;
-                    case EventPredicate eventPredicate:
-                        var time = _time;
-                        _time = at - 1;
-                        var predicates = eventPredicate.Action(this);
-                        _time = time;
-                        foreach (var action in predicates)
-                        {
-                            switch (action)
-                            {
-                                case Initiated initiated when initiated.Fluent == fluent:
-                                    return true;
-                                case Terminated terminated when terminated.Fluent == fluent:
-                                    return false;
-                            }
-                        }
-
-                        break;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    public bool Holds(Fluent fluent) => HoldsAt(fluent, _time);
-}
 
 public class EventCalculus
 {
@@ -239,9 +111,9 @@ public class EventCalculus
     {
         var state = new FluentState();
         var fluent = new Fluent("Fluent 1");
-        state.Initiate(fluent, 3);
-
-        Assert.Throws<InvalidOperationException>(() => state.Terminate(fluent, 3));
-        Assert.Throws<InvalidOperationException>(() => state.AddEvent(_ => new[] { new Terminated(fluent) }, 3));
+        state.Initiate(fluent, 3).Should().BeTrue();
+        state.Terminate(fluent, 3).Should().BeFalse();
+        state.AddEvent(_ => new[] { new Terminated(fluent) }, 3).Should().BeFalse();
+        state.HoldsAt(fluent, 3).Should().BeTrue();
     }
 }
