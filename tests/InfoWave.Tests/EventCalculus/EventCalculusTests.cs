@@ -1,8 +1,8 @@
 using InfoWave.EventCalculus;
 
-namespace InfoWave.Tests;
+namespace InfoWave.Tests.EventCalculus;
 
-public class EventCalculus
+public class EventCalculusTests
 {
     [Test]
     public void FluentsAreUnique()
