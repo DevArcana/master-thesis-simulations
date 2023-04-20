@@ -1,6 +1,6 @@
-using Simulator.Widgets;
+using InfoWave.MonoGame.Widgets;
 
-namespace Simulator.Scenes.MapOverview.Widgets;
+namespace InfoWave.MonoGame.Scenes.MapOverview.Widgets;
 
 public class CostMapWidget : GridWidget
 {

@@ -1,9 +1,9 @@
+using InfoWave.MonoGame.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Simulator.Utils;
 
-namespace Simulator.Widgets;
+namespace InfoWave.MonoGame.Widgets;
 
 public class BooleanGridWidget
 {

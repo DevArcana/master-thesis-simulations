@@ -1,8 +1,8 @@
+using InfoWave.MonoGame.Gui;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Simulator.Gui;
 
-namespace Simulator.Scenes;
+namespace InfoWave.MonoGame.Scenes;
 
 public class SampleScene : Scene
 {

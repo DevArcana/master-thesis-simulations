@@ -1,13 +1,13 @@
 using System.IO;
 using System.Linq;
 using ImGuiNET;
+using InfoWave.MonoGame.Gui;
+using InfoWave.MonoGame.Scenes.MapOverview.Widgets;
+using InfoWave.MonoGame.Widgets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Simulator.Gui;
-using Simulator.Scenes.MapOverview.Widgets;
-using Simulator.Widgets;
 
-namespace Simulator.Scenes.MapOverview;
+namespace InfoWave.MonoGame.Scenes.MapOverview;
 
 public class MapOverviewScene : Scene
 {

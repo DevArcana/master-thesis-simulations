@@ -1,7 +1,7 @@
 using ImGuiNET;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Simulator.Gui;
+namespace InfoWave.MonoGame.Gui;
 
 public static class DrawVertDeclaration
 {

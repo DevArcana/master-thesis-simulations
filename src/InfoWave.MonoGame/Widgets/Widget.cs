@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Simulator.Widgets;
+namespace InfoWave.MonoGame.Widgets;
 
 public abstract class Widget
 {

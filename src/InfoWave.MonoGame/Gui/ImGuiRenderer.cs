@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Simulator.Gui;
+namespace InfoWave.MonoGame.Gui;
 
 /// <summary>
 /// ImGui renderer for use with XNA-likes (FNA & MonoGame)

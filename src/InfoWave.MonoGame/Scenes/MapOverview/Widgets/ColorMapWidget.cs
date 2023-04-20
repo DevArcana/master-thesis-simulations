@@ -1,8 +1,8 @@
+using InfoWave.MonoGame.Widgets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Simulator.Widgets;
 
-namespace Simulator.Scenes.MapOverview.Widgets;
+namespace InfoWave.MonoGame.Scenes.MapOverview.Widgets;
 
 public class ColorMapWidget : GridWidget
 {

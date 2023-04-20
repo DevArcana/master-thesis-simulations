@@ -1,4 +1,4 @@
-namespace Simulator.Utils;
+namespace InfoWave.MonoGame.Utils;
 
 public class Grid<T>
 {

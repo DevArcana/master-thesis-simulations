@@ -1,16 +1,16 @@
 ﻿using System;
 using ImGuiNET;
+using InfoWave.MonoGame.Gui;
+using InfoWave.MonoGame.Scenes;
+using InfoWave.MonoGame.Scenes.GameOfLife;
+using InfoWave.MonoGame.Scenes.MapOverview;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Simulator.Gui;
-using Simulator.Scenes;
-using Simulator.Scenes.GameOfLife;
-using Simulator.Scenes.MapOverview;
 
-namespace Simulator;
+namespace InfoWave.MonoGame;
 
-public class Simulator : Game
+public sealed class Simulator : Game
 {
     private ImGuiRenderer _imGuiRenderer;
     private Scene _scene = null;
@@ -77,7 +77,7 @@ public class Simulator : Game
         }
     }
 
-    protected virtual void ImGuiLayout()
+    private void ImGuiLayout()
     {
         ImGui.Begin("Simulator", ImGuiWindowFlags.AlwaysAutoResize);
         ImGuiFramerate();

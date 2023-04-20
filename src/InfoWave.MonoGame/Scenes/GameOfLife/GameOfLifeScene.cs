@@ -1,11 +1,11 @@
 using ImGuiNET;
+using InfoWave.MonoGame.Gui;
+using InfoWave.MonoGame.Utils;
+using InfoWave.MonoGame.Widgets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Simulator.Gui;
-using Simulator.Utils;
-using Simulator.Widgets;
 
-namespace Simulator.Scenes.GameOfLife;
+namespace InfoWave.MonoGame.Scenes.GameOfLife;
 
 public class GameOfLifeScene : Scene
 {

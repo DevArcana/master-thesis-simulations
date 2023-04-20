@@ -7,7 +7,7 @@
     <TieredCompilation>false</TieredCompilation>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>11</LangVersion>
-    <RootNamespace>Simulator</RootNamespace>
+    <RootNamespace>InfoWave.MonoGame</RootNamespace>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Icon.ico</ApplicationIcon>

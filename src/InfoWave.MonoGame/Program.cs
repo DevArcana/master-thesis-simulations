@@ -1,2 +1,5 @@
-﻿using var game = new Simulator.Simulator();
+﻿using InfoWave;
+using InfoWave.MonoGame;
+
+using var game = new Simulator();
 game.Run();
