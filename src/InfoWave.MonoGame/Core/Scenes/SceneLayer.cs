@@ -42,15 +42,9 @@ public abstract class SceneLayer
         ImGui.End();
     }
 
-    protected virtual void OnUpdate(GameTime gameTime)
-    {
-    }
+    protected abstract void OnUpdate(GameTime gameTime);
 
-    protected virtual void OnDraw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, GameTime gameTime)
-    {
-    }
+    protected abstract void OnDraw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, GameTime gameTime);
 
-    protected virtual void OnGui()
-    {
-    }
+    protected abstract void OnGui();
 }
