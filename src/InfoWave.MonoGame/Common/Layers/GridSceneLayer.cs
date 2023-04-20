@@ -2,7 +2,6 @@ using System;
 using ImGuiNET;
 using InfoWave.MonoGame.Core.Scenes;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace InfoWave.MonoGame.Common.Layers;
@@ -37,11 +36,6 @@ public abstract class GridSceneLayer : SceneLayer
 
         HoverCellX = ToCellCoord(state.X);
         HoverCellY = ToCellCoord(state.Y);
-    }
-
-    protected override void OnDraw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, GameTime gameTime)
-    {
-        throw new NotImplementedException();
     }
 
     protected override void OnGui()

@@ -2,9 +2,6 @@
 using ImGuiNET;
 using InfoWave.MonoGame.Core.Gui;
 using InfoWave.MonoGame.Core.Scenes;
-using InfoWave.MonoGame.Scenes;
-using InfoWave.MonoGame.Scenes.GameOfLife;
-using InfoWave.MonoGame.Scenes.MapOverview;
 using InfoWave.MonoGame.Scenes.Playground;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -64,18 +61,6 @@ public sealed class Simulator : Game
         }
         else
         {
-            if (ImGui.Button("[Sample]"))
-            {
-                _scene = new SampleScene(GraphicsDevice,_imGuiRenderer);
-            }
-            if (ImGui.Button("[Game of Life]"))
-            {
-                _scene = new GameOfLifeScene(GraphicsDevice,_imGuiRenderer);
-            }
-            if (ImGui.Button("[Map Overview]"))
-            {
-                _scene = new MapOverviewScene(GraphicsDevice,_imGuiRenderer);
-            }
             if (ImGui.Button("[Playground]"))
             {
                 _scene = new PlaygroundScene(GraphicsDevice,_imGuiRenderer);
