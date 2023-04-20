@@ -1,11 +1,11 @@
-using InfoWave.MonoGame.Widgets;
+using InfoWave.MonoGame.Common.Widgets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace InfoWave.MonoGame.Scenes.MapOverview.Widgets;
 
-public class PathfindingWidget : GridWidget
+public class PathfindingSceneLayer : GridSceneLayer
 {
     private readonly Texture2D _pixel;
 
@@ -18,7 +18,7 @@ public class PathfindingWidget : GridWidget
     private bool _selectingFrom;
     private bool _selectingTo;
 
-    public PathfindingWidget(GraphicsDevice graphicsDevice, int scale) : base("Pathfinding", scale, 0)
+    public PathfindingSceneLayer(GraphicsDevice graphicsDevice, int scale) : base("Pathfinding", scale, 0)
     {
         _pixel = new Texture2D(graphicsDevice, scale, scale);
         var data = new Color[scale * scale];

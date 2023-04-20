@@ -1,9 +1,9 @@
 using System.IO;
 using System.Linq;
 using ImGuiNET;
-using InfoWave.MonoGame.Gui;
+using InfoWave.MonoGame.Core.Gui;
+using InfoWave.MonoGame.Core.Scenes;
 using InfoWave.MonoGame.Scenes.MapOverview.Widgets;
-using InfoWave.MonoGame.Widgets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -15,9 +15,9 @@ public class MapOverviewScene : Scene
     private int _selectedMap;
     private const int Scale = 10;
 
-    private Widget _colorMapWidget;
-    private Widget _costMapWidget;
-    private Widget _pathfindingWidget;
+    private SceneLayer _colorMapSceneLayer;
+    private SceneLayer _costMapSceneLayer;
+    private SceneLayer _pathfindingSceneLayer;
 
     public MapOverviewScene(GraphicsDevice graphicsDevice, ImGuiRenderer imGuiRenderer) : base("Map Overview",
         graphicsDevice, imGuiRenderer)
@@ -36,9 +36,9 @@ public class MapOverviewScene : Scene
     {
         var map = _maps[_selectedMap];
         var color = Texture2D.FromFile(GraphicsDevice, Path.Join("Images", $"{map}_color.png"));
-        _colorMapWidget = new ColorMapWidget(color, Scale);
-        _costMapWidget = new CostMapWidget(Scale);
-        _pathfindingWidget = new PathfindingWidget(GraphicsDevice, Scale);
+        _colorMapSceneLayer = new ColorMapSceneLayer(color, Scale);
+        _costMapSceneLayer = new CostMapSceneLayer(Scale);
+        _pathfindingSceneLayer = new PathfindingSceneLayer(GraphicsDevice, Scale);
     }
 
     protected override void OnCreate()
@@ -47,9 +47,9 @@ public class MapOverviewScene : Scene
 
     protected override void OnUpdate(GameTime gameTime)
     {
-        _colorMapWidget?.Update(gameTime);
-        _costMapWidget?.Update(gameTime);
-        _pathfindingWidget?.Update(gameTime);
+        _colorMapSceneLayer?.Update(gameTime);
+        _costMapSceneLayer?.Update(gameTime);
+        _pathfindingSceneLayer?.Update(gameTime);
     }
 
     protected override void OnDestroy()
@@ -58,9 +58,9 @@ public class MapOverviewScene : Scene
 
     protected override void OnDraw(GameTime gameTime)
     {
-        _colorMapWidget?.Draw(GraphicsDevice, SpriteBatch, gameTime);
-        _costMapWidget?.Draw(GraphicsDevice, SpriteBatch, gameTime);
-        _pathfindingWidget?.Draw(GraphicsDevice, SpriteBatch, gameTime);
+        _colorMapSceneLayer?.Draw(GraphicsDevice, SpriteBatch, gameTime);
+        _costMapSceneLayer?.Draw(GraphicsDevice, SpriteBatch, gameTime);
+        _pathfindingSceneLayer?.Draw(GraphicsDevice, SpriteBatch, gameTime);
     }
 
     protected override void OnGui()
@@ -72,9 +72,9 @@ public class MapOverviewScene : Scene
             ReloadMapFromDisk();
         }
 
-        _colorMapWidget?.UpdateGui();
-        _costMapWidget?.UpdateGui();
-        _pathfindingWidget?.UpdateGui();
+        _colorMapSceneLayer?.UpdateGui();
+        _costMapSceneLayer?.UpdateGui();
+        _pathfindingSceneLayer?.UpdateGui();
 
         ImGui.End();
     }

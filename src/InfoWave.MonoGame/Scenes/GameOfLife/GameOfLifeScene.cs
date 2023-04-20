@@ -1,7 +1,8 @@
 using ImGuiNET;
-using InfoWave.MonoGame.Gui;
-using InfoWave.MonoGame.Utils;
-using InfoWave.MonoGame.Widgets;
+using InfoWave.MonoGame.Common.Utils;
+using InfoWave.MonoGame.Common.Widgets;
+using InfoWave.MonoGame.Core.Gui;
+using InfoWave.MonoGame.Core.Scenes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 

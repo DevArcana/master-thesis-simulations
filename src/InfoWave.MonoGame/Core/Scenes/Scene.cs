@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using ImGuiNET;
-using InfoWave.MonoGame.Gui;
+using InfoWave.MonoGame.Core.Gui;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace InfoWave.MonoGame;
+namespace InfoWave.MonoGame.Core.Scenes;
 
 public enum SceneStatus
 {

@@ -1,14 +1,14 @@
-using InfoWave.MonoGame.Widgets;
+using InfoWave.MonoGame.Common.Widgets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace InfoWave.MonoGame.Scenes.MapOverview.Widgets;
 
-public class ColorMapWidget : GridWidget
+public class ColorMapSceneLayer : GridSceneLayer
 {
     private readonly Texture2D _color;
     
-    public ColorMapWidget(Texture2D color, int scale) : base("Color Map", scale, 0)
+    public ColorMapSceneLayer(Texture2D color, int scale) : base("Color Map", scale, 0)
     {
         _color = color;
     }
