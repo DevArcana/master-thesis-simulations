@@ -11,8 +11,8 @@ namespace InfoWave.MonoGame;
 
 public sealed class Simulator : Game
 {
-    private ImGuiRenderer _imGuiRenderer;
-    private Scene _scene = null;
+    private ImGuiRenderer _imGuiRenderer = null!;
+    private Scene? _scene;
 
     public Simulator()
     {
@@ -33,6 +33,8 @@ public sealed class Simulator : Game
     {
         _imGuiRenderer = new ImGuiRenderer(this);
         _imGuiRenderer.RebuildFontAtlas();
+        
+        _scene = new PlaygroundScene(GraphicsDevice,_imGuiRenderer);
 
         base.Initialize();
     }
