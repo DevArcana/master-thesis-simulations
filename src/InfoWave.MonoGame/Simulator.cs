@@ -99,7 +99,7 @@ public sealed class Simulator : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
-        GraphicsDevice.Clear(Color.Black);
+        GraphicsDevice.Clear(new Color(34, 35, 35));
 
         _scene?.Draw(gameTime);
         

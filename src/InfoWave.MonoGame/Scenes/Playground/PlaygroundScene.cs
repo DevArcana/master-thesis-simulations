@@ -7,6 +7,8 @@ namespace InfoWave.MonoGame.Scenes.Playground;
 
 public class PlaygroundScene : Scene
 {
+    private readonly PlaygroundSettings _settings = new();
+    
     public PlaygroundScene(GraphicsDevice graphicsDevice, ImGuiRenderer imGuiRenderer)
         : base("Playground", graphicsDevice, imGuiRenderer)
     {
@@ -14,7 +16,7 @@ public class PlaygroundScene : Scene
 
     protected override void OnCreate()
     {
-        AddLayer(new AgentSceneLayer());
+        AddLayer(new AgentSceneLayer(_settings, GraphicsDevice));
     }
 
     protected override void OnUpdate(GameTime gameTime)
