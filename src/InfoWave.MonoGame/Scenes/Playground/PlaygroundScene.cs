@@ -14,6 +14,7 @@ public class PlaygroundScene : Scene
 
     protected override void OnCreate()
     {
+        AddLayer(new AgentSceneLayer());
     }
 
     protected override void OnUpdate(GameTime gameTime)

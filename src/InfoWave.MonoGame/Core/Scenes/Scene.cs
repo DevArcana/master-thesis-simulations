@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using System.Numerics;
 using ImGuiNET;
 using InfoWave.MonoGame.Core.Gui;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Vector2 = System.Numerics.Vector2;
 
 namespace InfoWave.MonoGame.Core.Scenes;
 
@@ -77,10 +79,13 @@ public abstract class Scene
         ImGui.EndListBox();
         ImGui.End();
 
+        ImGui.Begin($"[{Name}] layers", ImGuiWindowFlags.AlwaysAutoResize);
+        ImGui.Dummy(new Vector2(150, 0));
         foreach (var layer in _layers)
         {
             layer.UpdateGui();
         }
+        ImGui.End();
 
         OnGui();
     }

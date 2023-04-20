@@ -37,9 +37,7 @@ public abstract class SceneLayer
 
         if (!Enabled) return;
 
-        ImGui.Begin(_name, ImGuiWindowFlags.AlwaysAutoResize);
         OnGui();
-        ImGui.End();
     }
 
     protected abstract void OnUpdate(GameTime gameTime);
