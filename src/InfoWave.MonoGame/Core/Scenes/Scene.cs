@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ImGuiNET;
 using InfoWave.MonoGame.Core.Gui;
@@ -34,6 +33,7 @@ public abstract class Scene
     public SceneStatus Status { get; private set; }
 
     private readonly Stack<string> _logs = new();
+    private readonly List<SceneLayer> _layers = new();
 
     protected void Log(string line)
     {
@@ -49,6 +49,13 @@ public abstract class Scene
     protected abstract void OnDraw(GameTime gameTime);
 
     protected abstract void OnGui();
+
+    protected SceneLayer AddLayer(SceneLayer layer)
+    {
+        _layers.Add(layer);
+
+        return layer;
+    }
 
     public void Destroy()
     {
@@ -66,9 +73,15 @@ public abstract class Scene
         {
             ImGui.Text(log);
         }
+
         ImGui.EndListBox();
         ImGui.End();
-        
+
+        foreach (var layer in _layers)
+        {
+            layer.UpdateGui();
+        }
+
         OnGui();
     }
 
@@ -83,6 +96,11 @@ public abstract class Scene
                 _logs.Push("[lifetime] created");
                 break;
             case SceneStatus.Created:
+                foreach (var layer in _layers)
+                {
+                    layer.Update(gameTime);
+                }
+
                 OnUpdate(gameTime);
                 break;
             case SceneStatus.Destroying:
@@ -92,8 +110,6 @@ public abstract class Scene
                 break;
             case SceneStatus.Destroyed:
                 break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(Status));
         }
     }
 
@@ -102,6 +118,11 @@ public abstract class Scene
         if (Status == SceneStatus.Created)
         {
             SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            foreach (var layer in _layers)
+            {
+                layer.Draw(GraphicsDevice, SpriteBatch, gameTime);
+            }
+
             OnDraw(gameTime);
             SpriteBatch.End();
         }

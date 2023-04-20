@@ -4,7 +4,7 @@ using InfoWave.MonoGame.Core.Scenes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace InfoWave.MonoGame.Common.Widgets;
+namespace InfoWave.MonoGame.Common.Layers;
 
 public class GridSceneLayer : SceneLayer
 {

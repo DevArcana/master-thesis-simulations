@@ -9,13 +9,14 @@ public abstract class SceneLayer
     /// <summary>
     /// Determines if a scene layer will get rendered and updated
     /// </summary>
+    // ReSharper disable once MemberCanBePrivate.Global
     public bool Enabled = true;
 
-    public string Name;
+    private readonly string _name;
 
     protected SceneLayer(string name)
     {
-        Name = name;
+        _name = name;
     }
 
     public void Update(GameTime gameTime)
@@ -32,11 +33,11 @@ public abstract class SceneLayer
 
     public void UpdateGui()
     {
-        ImGui.Checkbox($"Enable {Name}", ref Enabled);
+        ImGui.Checkbox($"Enable {_name}", ref Enabled);
 
         if (!Enabled) return;
 
-        ImGui.Begin(Name, ImGuiWindowFlags.AlwaysAutoResize);
+        ImGui.Begin(_name, ImGuiWindowFlags.AlwaysAutoResize);
         OnGui();
         ImGui.End();
     }

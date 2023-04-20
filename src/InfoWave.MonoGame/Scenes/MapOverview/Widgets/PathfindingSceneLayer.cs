@@ -1,4 +1,4 @@
-using InfoWave.MonoGame.Common.Widgets;
+using InfoWave.MonoGame.Common.Layers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;

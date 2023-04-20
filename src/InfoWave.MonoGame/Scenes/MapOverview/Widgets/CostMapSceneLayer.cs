@@ -1,4 +1,4 @@
-using InfoWave.MonoGame.Common.Widgets;
+using InfoWave.MonoGame.Common.Layers;
 
 namespace InfoWave.MonoGame.Scenes.MapOverview.Widgets;
 

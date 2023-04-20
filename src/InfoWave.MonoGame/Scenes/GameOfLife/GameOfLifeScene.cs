@@ -1,6 +1,6 @@
 using ImGuiNET;
+using InfoWave.MonoGame.Common.Layers;
 using InfoWave.MonoGame.Common.Utils;
-using InfoWave.MonoGame.Common.Widgets;
 using InfoWave.MonoGame.Core.Gui;
 using InfoWave.MonoGame.Core.Scenes;
 using Microsoft.Xna.Framework;
@@ -18,7 +18,7 @@ public class GameOfLifeScene : Scene
     private int _step;
 
     private Grid<bool> _grid;
-    private BooleanGridWidget _gridWidget;
+    private BooleanGridSceneLayer _gridSceneLayer;
 
     public GameOfLifeScene(GraphicsDevice graphicsDevice, ImGuiRenderer imGuiRenderer) : base("Game of Life", graphicsDevice, imGuiRenderer)
     {
@@ -32,7 +32,7 @@ public class GameOfLifeScene : Scene
     private void RebuildGrid()
     {
         _grid = new Grid<bool>(_width, _height);
-        _gridWidget = new BooleanGridWidget(GraphicsDevice, _grid, Color.White, Color.Gray, _cellSize, _cellGap);
+        _gridSceneLayer = new BooleanGridSceneLayer(GraphicsDevice, _grid, Color.White, Color.Gray, _cellSize, _cellGap);
         _step = 0;
     }
 
@@ -126,14 +126,14 @@ public class GameOfLifeScene : Scene
 
     protected override void OnUpdate(GameTime gameTime)
     {
-        if (_gridWidget.Clicked())
+        if (_gridSceneLayer.Clicked())
         {
-            if (_gridWidget.ClickX >= 0 &&
-                _gridWidget.ClickX < _grid.Width &&
-                _gridWidget.ClickY >= 0 &&
-                _gridWidget.ClickY < _grid.Height)
+            if (_gridSceneLayer.ClickX >= 0 &&
+                _gridSceneLayer.ClickX < _grid.Width &&
+                _gridSceneLayer.ClickY >= 0 &&
+                _gridSceneLayer.ClickY < _grid.Height)
             {
-                _grid[_gridWidget.ClickX, _gridWidget.ClickY] = !_grid[_gridWidget.ClickX, _gridWidget.ClickY];
+                _grid[_gridSceneLayer.ClickX, _gridSceneLayer.ClickY] = !_grid[_gridSceneLayer.ClickX, _gridSceneLayer.ClickY];
             }
         }
 
@@ -149,6 +149,6 @@ public class GameOfLifeScene : Scene
 
     protected override void OnDraw(GameTime gameTime)
     {
-        _gridWidget?.Draw(SpriteBatch);
+        _gridSceneLayer?.Draw(SpriteBatch);
     }
 }

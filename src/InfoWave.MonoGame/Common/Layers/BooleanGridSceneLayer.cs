@@ -3,9 +3,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace InfoWave.MonoGame.Common.Widgets;
+namespace InfoWave.MonoGame.Common.Layers;
 
-public class BooleanGridWidget
+public class BooleanGridSceneLayer
 {
     private readonly Texture2D _pixel;
     private readonly Grid<bool> _grid;
@@ -14,7 +14,7 @@ public class BooleanGridWidget
     private readonly int _cellSize;
     private readonly int _cellGap;
 
-    public BooleanGridWidget(
+    public BooleanGridSceneLayer(
         GraphicsDevice gfx,
         Grid<bool> grid,
         Color trueColor,
