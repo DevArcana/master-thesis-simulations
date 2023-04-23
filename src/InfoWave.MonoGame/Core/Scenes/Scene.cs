@@ -52,7 +52,7 @@ public abstract class Scene
 
     protected abstract void OnGui();
 
-    protected SceneLayer AddLayer(SceneLayer layer)
+    protected T AddLayer<T>(T layer) where T : SceneLayer
     {
         _layers.Add(layer);
 

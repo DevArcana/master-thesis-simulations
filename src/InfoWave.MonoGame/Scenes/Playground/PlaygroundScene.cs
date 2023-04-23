@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ImGuiNET;
 using InfoWave.MonoGame.Core.Gui;
 using InfoWave.MonoGame.Core.Scenes;
@@ -10,18 +11,20 @@ public class PlaygroundScene : Scene
 {
     private readonly PlaygroundSettings _settings = new();
 
+    private readonly List<ITickable> _tickables = new();
+
     private long _tick = 0;
     private double _timer = 0;
 
     public PlaygroundScene(GraphicsDevice graphicsDevice, ImGuiRenderer imGuiRenderer)
         : base("Playground", graphicsDevice, imGuiRenderer)
     {
+        _timer = _settings.Heartbeat;
+        _tickables.Add(AddLayer(new AgentSceneLayer(_settings, GraphicsDevice)));
     }
 
     protected override void OnCreate()
     {
-        AddLayer(new AgentSceneLayer(_settings, GraphicsDevice));
-        _timer = _settings.Heartbeat;
     }
 
     protected override void OnUpdate(GameTime gameTime)
@@ -37,6 +40,10 @@ public class PlaygroundScene : Scene
 
     public void Heartbeat()
     {
+        foreach (var tickable in _tickables)
+        {
+            tickable.Tick();
+        }
     }
 
     protected override void OnDestroy()
