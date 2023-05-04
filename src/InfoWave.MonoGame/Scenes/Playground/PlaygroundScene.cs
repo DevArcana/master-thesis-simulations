@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using ImGuiNET;
@@ -9,6 +10,28 @@ using SpriteFontPlus;
 
 namespace InfoWave.MonoGame.Scenes.Playground;
 
+public enum Direction
+{
+    Up,
+    Down,
+    Left,
+    Right
+}
+
+public class ActionDescription
+{
+    
+}
+
+public class MoveDescription : ActionDescription
+{
+    public Direction Direction;
+}
+
+// agent - components such as position, health, brain
+// brain - memory, rules, operators
+// agent - feed memory, decide, get operators
+
 public struct Position
 {
     public int X;
@@ -19,10 +42,23 @@ public class Agent
 {
     public string Id;
     public Position Position;
+    
+    public readonly Dictionary<string, object> Memory = new();
 
     public Agent(string id)
     {
         Id = id;
+    }
+
+    public ActionDescription Decide()
+    {
+        if (Memory.TryGetValue("position", out var obj))
+        {
+            var position = (Position) obj;
+            if (position.X < 10) return new MoveDescription() { Direction = Direction.Right };
+        }
+        
+        return new ActionDescription();
     }
 }
 
@@ -86,8 +122,31 @@ public class PlaygroundScene : Scene
     {
         foreach (var agent in _agents)
         {
-            agent.Position.X++;
-            agent.Position.Y++;
+            agent.Memory["position"] = agent.Position;
+            var action = agent.Decide();
+
+            switch (action)
+            {
+                case MoveDescription move:
+                    switch (move.Direction)
+                    {
+                        case Direction.Up:
+                            agent.Position.Y--;
+                            break;
+                        case Direction.Down:
+                            agent.Position.Y++;
+                            break;
+                        case Direction.Left:
+                            agent.Position.X--;
+                            break;
+                        case Direction.Right:
+                            agent.Position.X++;
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                    break;
+            }
         }
     }
 
