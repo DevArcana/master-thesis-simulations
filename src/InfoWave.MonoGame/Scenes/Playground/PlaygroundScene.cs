@@ -10,27 +10,44 @@ using SpriteFontPlus;
 
 namespace InfoWave.MonoGame.Scenes.Playground;
 
-public enum Direction
-{
-    Up,
-    Down,
-    Left,
-    Right
-}
-
-public class ActionDescription
-{
-    
-}
-
-public class MoveDescription : ActionDescription
-{
-    public Direction Direction;
-}
-
 // agent - components such as position, health, brain
 // brain - memory, rules, operators
 // agent - feed memory, decide, get operators
+
+public class ActionDescriptor
+{
+    public Action<Dictionary<string, object>> OnSuccess = _ => { };
+    public Action<Dictionary<string, object>> OnReject = _ => { };
+}
+
+public class MoveDescriptor : ActionDescriptor
+{
+    public Position Velocity;
+}
+
+public class Brain
+{
+    public readonly Dictionary<string, object> Memory = new();
+    public readonly List<Func<IReadOnlyDictionary<string, object>, IEnumerable<ActionDescriptor>>> BehaviourRules = new();
+    public readonly List<Action<Dictionary<string, object>>> InferenceRules = new();
+
+    public IEnumerable<ActionDescriptor> Braining()
+    {
+        foreach (var rule in InferenceRules)
+        {
+            rule(Memory);
+        }
+        
+        var actions = new List<ActionDescriptor>();
+
+        foreach (var rule in BehaviourRules)
+        {
+            actions.AddRange(rule(Memory));
+        }
+
+        return actions;
+    }
+}
 
 public struct Position
 {
@@ -42,23 +59,33 @@ public class Agent
 {
     public string Id;
     public Position Position;
-    
-    public readonly Dictionary<string, object> Memory = new();
+    public Brain Brain;
 
     public Agent(string id)
     {
         Id = id;
-    }
-
-    public ActionDescription Decide()
-    {
-        if (Memory.TryGetValue("position", out var obj))
-        {
-            var position = (Position) obj;
-            if (position.X < 10) return new MoveDescription() { Direction = Direction.Right };
-        }
+        Brain = new Brain();
         
-        return new ActionDescription();
+        Brain.InferenceRules.Add(memory =>
+        {
+            var position = (Position)memory["position"];
+            if (position.X == 3)
+            {
+                memory["reached"] = false;
+            }
+            else if (position.X == 6)
+            {
+                memory["reached"] = true;
+            }
+        });
+
+        Brain.BehaviourRules.Add(memory =>
+        {
+            var position = (Position)memory["position"];
+            var reached = memory.TryGetValue("reached", out var reachedValue) && (bool)reachedValue;
+
+            return new[] { new MoveDescriptor() { Velocity = new Position() { X = reached ? -1 : 1, Y = 0 } } };
+        });
     }
 }
 
@@ -72,7 +99,7 @@ public class PlaygroundScene : Scene
 
     private readonly List<Agent> _agents;
     private readonly Texture2D[] _tiles;
-    
+
     private readonly SpriteFont _font;
 
     public PlaygroundScene(GraphicsDevice graphicsDevice, ImGuiRenderer imGuiRenderer)
@@ -84,9 +111,9 @@ public class PlaygroundScene : Scene
         {
             Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0004.png")
         };
-        
+
         var fontBakeResult = TtfFontBaker.Bake(File.ReadAllBytes(@"Assets/Fonts/Inter.ttf"),
-            (float) TileSize,
+            (float)TileSize,
             1024,
             1024,
             new[]
@@ -103,8 +130,8 @@ public class PlaygroundScene : Scene
 
     protected override void OnCreate()
     {
-        _agents.Add(new Agent("bob") { Position = new Position() {X = 1, Y = 1}});
-        _agents.Add(new Agent("alice") { Position = new Position() {X = 3, Y = 1}});
+        _agents.Add(new Agent("bob") { Position = new Position() { X = 3, Y = 3 } });
+        _agents.Add(new Agent("alice") { Position = new Position() { X = 6, Y = 5 } });
     }
 
     protected override void OnUpdate(GameTime gameTime)
@@ -122,30 +149,19 @@ public class PlaygroundScene : Scene
     {
         foreach (var agent in _agents)
         {
-            agent.Memory["position"] = agent.Position;
-            var action = agent.Decide();
-
-            switch (action)
+            agent.Brain.Memory["position"] = agent.Position;
+            foreach (var descriptor in agent.Brain.Braining())
             {
-                case MoveDescription move:
-                    switch (move.Direction)
-                    {
-                        case Direction.Up:
-                            agent.Position.Y--;
-                            break;
-                        case Direction.Down:
-                            agent.Position.Y++;
-                            break;
-                        case Direction.Left:
-                            agent.Position.X--;
-                            break;
-                        case Direction.Right:
-                            agent.Position.X++;
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                    break;
+                switch (descriptor)
+                {
+                    case MoveDescriptor moveDescriptor:
+                        agent.Position.X += moveDescriptor.Velocity.X;
+                        agent.Position.Y += moveDescriptor.Velocity.Y;
+                        moveDescriptor.OnSuccess(agent.Brain.Memory);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(descriptor));
+                }
             }
         }
     }
@@ -161,19 +177,19 @@ public class PlaygroundScene : Scene
             SpriteBatch.Draw(
                 _tiles[0],
                 new Rectangle(
-                    TileSize * agent.Position.X, 
-                    TileSize * agent.Position.Y, 
-                    TileSize, 
-                    TileSize), 
+                    TileSize * agent.Position.X,
+                    TileSize * agent.Position.Y,
+                    TileSize,
+                    TileSize),
                 Color.White);
 
             var size = _font.MeasureString(agent.Id);
             SpriteBatch.DrawString(
-                _font, 
-                agent.Id, 
+                _font,
+                agent.Id,
                 new Vector2(
-                    TileSize * agent.Position.X + (TileSize - size.X) / 2.0f, 
-                    TileSize * agent.Position.Y - TileSize / 2.0f - size.Y), 
+                    TileSize * agent.Position.X + (TileSize - size.X) / 2.0f,
+                    TileSize * agent.Position.Y - TileSize / 2.0f - size.Y),
                 Color.White);
         }
     }
