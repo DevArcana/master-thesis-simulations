@@ -26,7 +26,8 @@ public class RenderingSystem
 
         _tiles = new[]
         {
-            Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0004.png")
+            Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0004.png"),
+            Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0145.png"),
         };
 
         var fontBakeResult = TtfFontBaker.Bake(File.ReadAllBytes(@"Assets/Fonts/Inter.ttf"),
@@ -83,7 +84,7 @@ public class RenderingSystem
                     if (tile > 0)
                     {
                         _spriteBatch.Draw(
-                            _tiles[0],
+                            _tiles[1],
                             new Rectangle(
                                 TileSize * x,
                                 TileSize * y,
