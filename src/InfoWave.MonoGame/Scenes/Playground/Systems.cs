@@ -45,7 +45,7 @@ public class RenderingSystem
         _font = fontBakeResult.CreateSpriteFont(graphicsDevice);
     }
 
-    public void Execute()
+    public void RenderAgents()
     {
         var query = new QueryDescription().WithAll<Position, Name>();
         _world.Query(in query, (ref Position pos, ref Name name) =>
@@ -68,6 +68,38 @@ public class RenderingSystem
                     TileSize * pos.Y - TileSize / 2.0f - size.Y),
                 Color.White);
         });
+    }
+
+    public void RenderArena()
+    {
+        var query = new QueryDescription().WithAll<Grid>();
+        _world.Query(in query, (ref Grid grid) =>
+        {
+            for (var x = 0; x < grid.Width; x++)
+            {
+                for (var y = 0; y < grid.Height; y++)
+                {
+                    var tile = grid[x, y];
+                    if (tile > 0)
+                    {
+                        _spriteBatch.Draw(
+                            _tiles[0],
+                            new Rectangle(
+                                TileSize * x,
+                                TileSize * y,
+                                TileSize,
+                                TileSize),
+                            Color.White);
+                    }
+                }
+            }
+        });
+    }
+
+    public void Execute()
+    {
+        RenderArena();
+        RenderAgents();
     }
 }
 

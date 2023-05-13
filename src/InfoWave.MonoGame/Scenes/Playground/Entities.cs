@@ -15,4 +15,10 @@ public static class Entities
 
         return agent;
     }
+
+    public static Entity CreateArena(this World world, int width, int height)
+    {
+        var arena = world.Create(new Grid(width, height));
+        return arena;
+    }
 }

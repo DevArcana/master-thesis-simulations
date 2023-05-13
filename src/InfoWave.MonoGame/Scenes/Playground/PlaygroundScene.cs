@@ -1,4 +1,5 @@
 using Arch.Core;
+using Arch.Core.Extensions;
 using ImGuiNET;
 using InfoWave.MonoGame.Core.Gui;
 using InfoWave.MonoGame.Core.Scenes;
@@ -51,7 +52,14 @@ public class PlaygroundScene : Scene
 
     protected override void OnCreate()
     {
-        _world.CreateAgent("Agent 1", 2, 3);
+        var arena = _world.CreateArena(12, 24).Get<Grid>();
+        arena[4, 2] = 1;
+        arena[4, 3] = 1;
+        arena[4, 4] = 1;
+        arena[4, 5] = 1;
+        var agent = _world.CreateAgent("Agent 1", 2, 3);
+        var inferences = agent.Get<Inference>();
+        var behaviour = agent.Get<Behaviour>();
     }
 
     protected override void OnUpdate(GameTime gameTime)

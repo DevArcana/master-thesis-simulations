@@ -54,3 +54,38 @@ public readonly struct Name
         Value = value;
     }
 }
+
+public class Grid
+{
+    public readonly int Width, Height;
+    private readonly int[,] _tiles;
+
+    public Grid(int width, int height)
+    {
+        Width = width;
+        Height = height;
+        _tiles = new int[width, height];
+    }
+
+    public bool IsInBounds(int x, int y)
+    {
+        return x >= 0 && x < Width && y >= 0 && y < Height;
+    }
+
+    public bool IsInBounds(Position pos)
+    {
+        return IsInBounds(pos.X, pos.Y);
+    }
+
+    public int this[int x, int y]
+    {
+        get => IsInBounds(x, y) ? _tiles[x, y] : 1;
+        set
+        {
+            if (IsInBounds(x, y))
+            {
+                _tiles[x, y] = value;
+            }
+        }
+    }
+}
