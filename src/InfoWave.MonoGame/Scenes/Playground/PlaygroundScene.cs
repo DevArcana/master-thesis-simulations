@@ -53,13 +53,14 @@ public class PlaygroundScene : Scene
     protected override void OnCreate()
     {
         var arena = _world.CreateArena(12, 24).Get<Grid>();
-        arena[4, 2] = 1;
-        arena[4, 3] = 1;
-        arena[4, 4] = 1;
-        arena[4, 5] = 1;
+        arena[7, 2] = 1;
+        arena[7, 3] = 1;
+        arena[7, 4] = 1;
+        arena[7, 5] = 1;
         var agent = _world.CreateAgent("Agent 1", 2, 3);
         var inferences = agent.Get<Inference>();
         var behaviour = agent.Get<Behaviour>();
+        behaviour.Rules.Add((memory) => new []{new MoveDescriptor(){Velocity = new Position(1, 0)}});
     }
 
     protected override void OnUpdate(GameTime gameTime)
