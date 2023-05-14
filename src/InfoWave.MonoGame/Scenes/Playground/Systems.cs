@@ -178,6 +178,7 @@ public class SensorSystem
         _world.Query(in query, (ref WorkingMemory workingMemory, ref Name self) =>
         {
             var memory = workingMemory.Memory;
+            memory["name"] = self.Value;
             var agentsQuery = new QueryDescription().WithAll<Name, Position>();
             var positions = memory.TryGetValue("positions", out var value)
                 ? (Dictionary<string, Position>)value

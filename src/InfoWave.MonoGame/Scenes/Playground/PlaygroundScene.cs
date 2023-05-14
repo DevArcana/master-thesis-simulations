@@ -17,7 +17,7 @@ public class Ticker
     private long _tick = 0;
     private double _timer = 0;
 
-    private const double TickRate = 1.0f;
+    private const double TickRate = 0.1f;
 
     public long Ticks => _tick;
 
@@ -68,6 +68,15 @@ public class PlaygroundScene : Scene
         {
             var agent = _world.CreateAgent($"Agent {i}", 2 + i * 2, 3 + i * 4);
             var inferences = agent.Get<Inference>();
+            inferences.Rules.Add((memory) =>
+            {
+                var messages = memory.GetOr("messages", () => new List<string>());
+                if (messages.Any())
+                {
+                    messages.Clear();
+                    Globals.Infected.Add((string) memory["name"]);
+                }
+            });
             var behaviour = agent.Get<Behaviour>();
             behaviour.Rules.Add((memory) =>
             {
@@ -83,25 +92,19 @@ public class PlaygroundScene : Scene
                             Random.Shared.Next(-1, 2)
                         );
                     }
-                    
+
                     return new[]
                     {
                         new MoveDescriptor()
                         {
                             Velocity = direction,
-                            OnSuccess = (memory) =>
-                            {
-                                memory.Remove("collided");
-                            },
-                            OnReject = (memory) =>
-                            {
-                                memory["collided"] = direction;
-                            }
+                            OnSuccess = (memory) => { memory.Remove("collided"); },
+                            OnReject = (memory) => { memory["collided"] = direction; }
                         }
                     };
                 }
 
-                return new Descriptor[] {};
+                return new Descriptor[] { };
             });
             behaviour.Rules.Add((memory) =>
             {
@@ -109,31 +112,44 @@ public class PlaygroundScene : Scene
                 {
                     return new Descriptor[] { };
                 }
-                
+
                 var position = (Position)memory["position"];
                 var positions = (Dictionary<string, Position>)memory["positions"];
                 var visited = memory.GetOr("visited", () => new HashSet<string>());
+                var told = memory.GetOr("told", () => new HashSet<string>());
                 // find closest agent not yet visited
 
                 var sorted = positions
-                    .Where(x => !visited.Contains(x.Key) && x.Value.SquaredDistance(position) > 1)
+                    .Where(x =>
+                        !visited.Contains(x.Key)
+                        && !told.Contains(x.Key))
                     .OrderBy(x => x.Value.SquaredDistance(position))
                     .FirstOrDefault();
 
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
                 if (sorted.Key is not null)
                 {
-                    return new[]
+                    if (sorted.Value.SquaredDistance(position) == 1)
                     {
-                        new MoveDescriptor()
+                        return new[]
                         {
-                            Velocity = (sorted.Value - position).Capped(1),
-                            OnReject = (memory) =>
+                            new TellDescriptor(sorted.Value - position, "message")
                             {
-                                memory["collided"] = (sorted.Value - position).Capped(1);
+                                OnSuccess = (_ => { told.Add(sorted.Key); })
                             }
-                        }
-                    };
+                        };
+                    }
+                    else
+                    {
+                        return new[]
+                        {
+                            new MoveDescriptor()
+                            {
+                                Velocity = (sorted.Value - position).Capped(1),
+                                OnReject = (memory) => { memory["collided"] = (sorted.Value - position).Capped(1); }
+                            }
+                        };
+                    }
                 }
 
                 return new Descriptor[] { };
@@ -164,6 +180,10 @@ public class PlaygroundScene : Scene
     {
         ImGui.Begin("Playground", ImGuiWindowFlags.AlwaysAutoResize);
         ImGui.Text($"Step: {_ticker.Ticks}");
+        foreach (var agent in Globals.Agents)
+        {
+            ImGui.Text("Agent: " + agent + " " + (Globals.Infected.Contains(agent) ? "Infected" : "Healthy"));
+        }
         ImGui.End();
     }
 }

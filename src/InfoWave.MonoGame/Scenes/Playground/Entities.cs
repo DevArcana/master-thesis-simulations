@@ -13,6 +13,8 @@ public static class Entities
             new Inference(),
             new Behaviour());
 
+        Globals.Agents.Add(name);
+        
         return agent;
     }
 

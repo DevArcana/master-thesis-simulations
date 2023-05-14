@@ -41,3 +41,29 @@ public class MoveDescriptor : Descriptor
         return false;
     }
 }
+
+public class TellDescriptor : Descriptor
+{
+    public Position Direction;
+    public string Message;
+
+    public TellDescriptor(Position direction, string message)
+    {
+        Direction = direction;
+        Message = message;
+    }
+
+    public override bool Execute(Entity entity, World world)
+    {
+        var position = entity.Get<Position>() + Direction;
+        world.Query(new QueryDescription().WithAll<Position, WorkingMemory>(), (ref Position pos, ref WorkingMemory memory) =>
+        {
+            var messages = memory.Memory.GetOr("messages", () => new List<string>());
+            if (pos.X == position.X && pos.Y == position.Y)
+            {
+                messages.Add(Message);
+            }
+        });
+        return true;
+    }
+}
