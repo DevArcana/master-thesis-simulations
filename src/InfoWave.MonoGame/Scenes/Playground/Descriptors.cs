@@ -22,8 +22,16 @@ public class MoveDescriptor : Descriptor
         ref var position = ref entity.Get<Position>();
         var x = position.X + Velocity.X;
         var y = position.Y + Velocity.Y;
+        var collided = false;
+        world.Query(in new QueryDescription().WithAll<Position>(), (ref Position pos) =>
+        {
+            if (pos.X == x && pos.Y == y)
+            {
+                collided = true;
+            }
+        });
         var grid = world.GetFirst<Grid>();
-        if (grid[x, y] == 0)
+        if (grid[x, y] == 0 && !collided)
         {
             position.X = x;
             position.Y = y;

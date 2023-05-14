@@ -28,6 +28,7 @@ public class RenderingSystem
         {
             Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0004.png"),
             Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0145.png"),
+            Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0017.png"),
         };
 
         var fontBakeResult = TtfFontBaker.Bake(File.ReadAllBytes(@"Assets/Fonts/Inter.ttf"),
@@ -46,7 +47,7 @@ public class RenderingSystem
         _font = fontBakeResult.CreateSpriteFont(graphicsDevice);
     }
 
-    public void RenderAgents()
+    private void RenderAgents()
     {
         var query = new QueryDescription().WithAll<Position, Name>();
         _world.Query(in query, (ref Position pos, ref Name name) =>
@@ -71,7 +72,7 @@ public class RenderingSystem
         });
     }
 
-    public void RenderArena()
+    private void RenderArena()
     {
         var query = new QueryDescription().WithAll<Grid>();
         _world.Query(in query, (ref Grid grid) =>
@@ -81,17 +82,14 @@ public class RenderingSystem
                 for (var y = 0; y < grid.Height; y++)
                 {
                     var tile = grid[x, y];
-                    if (tile > 0)
-                    {
-                        _spriteBatch.Draw(
-                            _tiles[1],
-                            new Rectangle(
-                                TileSize * x,
-                                TileSize * y,
-                                TileSize,
-                                TileSize),
-                            Color.White);
-                    }
+                    _spriteBatch.Draw(
+                        _tiles[2 - tile],
+                        new Rectangle(
+                            TileSize * x,
+                            TileSize * y,
+                            TileSize,
+                            TileSize),
+                        Color.White);
                 }
             }
         });
@@ -161,6 +159,42 @@ public class BehaviourSystem
                     op.OnReject(memory.Memory);
                 }
             }
+        });
+    }
+}
+
+public class SensorSystem
+{
+    private readonly World _world;
+
+    public SensorSystem(World world)
+    {
+        _world = world;
+    }
+
+    public void Execute()
+    {
+        var query = new QueryDescription().WithAll<WorkingMemory, Name>();
+        _world.Query(in query, (ref WorkingMemory workingMemory, ref Name self) =>
+        {
+            var memory = workingMemory.Memory;
+            var agentsQuery = new QueryDescription().WithAll<Name, Position>();
+            var positions = memory.TryGetValue("positions", out var value)
+                ? (Dictionary<string, Position>)value
+                : new Dictionary<string, Position>();
+            memory["positions"] = positions;
+            var selfName = self.Value;
+            _world.Query(in agentsQuery, (ref Name name, ref Position position) =>
+            {
+                if (name.Value == selfName)
+                {
+                    memory["position"] = position;
+                }
+                else
+                {
+                    positions[name.Value] = position;
+                }
+            });
         });
     }
 }
