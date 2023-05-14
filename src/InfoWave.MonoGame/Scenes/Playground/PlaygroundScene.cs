@@ -74,6 +74,7 @@ public class PlaygroundScene : Scene
                 if (messages.Any())
                 {
                     messages.Clear();
+                    memory["infected"] = true;
                     Globals.Infected.Add((string) memory["name"]);
                 }
             });
@@ -108,7 +109,7 @@ public class PlaygroundScene : Scene
             });
             behaviour.Rules.Add((memory) =>
             {
-                if (memory.ContainsKey("collided"))
+                if (!memory.ContainsKey("infected") || memory.ContainsKey("collided"))
                 {
                     return new Descriptor[] { };
                 }
@@ -154,6 +155,11 @@ public class PlaygroundScene : Scene
 
                 return new Descriptor[] { };
             });
+
+            if (i == 3)
+            {
+                agent.Get<WorkingMemory>().Memory["infected"] = true;
+            }
         }
     }
 
