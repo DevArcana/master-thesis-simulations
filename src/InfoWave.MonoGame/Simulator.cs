@@ -2,6 +2,7 @@
 using ImGuiNET;
 using InfoWave.MonoGame.Core.Gui;
 using InfoWave.MonoGame.Core.Scenes;
+using InfoWave.MonoGame.Scenes.DiseaseSpread;
 using InfoWave.MonoGame.Scenes.Playground;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -33,8 +34,8 @@ public sealed class Simulator : Game
     {
         _imGuiRenderer = new ImGuiRenderer(this);
         _imGuiRenderer.RebuildFontAtlas();
-        
-        _scene = new PlaygroundScene(GraphicsDevice,_imGuiRenderer);
+
+        _scene = new PlaygroundScene(GraphicsDevice, _imGuiRenderer);
 
         base.Initialize();
     }
@@ -65,7 +66,11 @@ public sealed class Simulator : Game
         {
             if (ImGui.Button("[Playground]"))
             {
-                _scene = new PlaygroundScene(GraphicsDevice,_imGuiRenderer);
+                _scene = new PlaygroundScene(GraphicsDevice, _imGuiRenderer);
+            }
+            else if (ImGui.Button("[Disease Spread]"))
+            {
+                _scene = new DiseaseSpreadScene(GraphicsDevice, _imGuiRenderer);
             }
         }
     }
@@ -103,7 +108,7 @@ public sealed class Simulator : Game
         GraphicsDevice.Clear(Color.Black);
 
         _scene?.Draw(gameTime);
-        
+
         _imGuiRenderer.BeforeLayout(gameTime);
         ImGuiLayout();
         _imGuiRenderer.AfterLayout();

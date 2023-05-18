@@ -1,59 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Arch.Core;
 using Arch.Core.Extensions;
-using ImGuiNET;
 using InfoWave.MonoGame.Common.Utils;
 using InfoWave.MonoGame.Core.Gui;
-using InfoWave.MonoGame.Core.Scenes;
-using Microsoft.Xna.Framework;
+using InfoWave.MonoGame.Scenes.Playground;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace InfoWave.MonoGame.Scenes.Playground;
+namespace InfoWave.MonoGame.Scenes.DiseaseSpread;
 
-public class Ticker
+public class DiseaseSpreadScene : PlaygroundScene
 {
-    private long _tick = 0;
-    private double _timer = 0;
-
-    private const double TickRate = 0.1f;
-
-    public long Ticks => _tick;
-
-    public bool Tick(GameTime gameTime)
+    public DiseaseSpreadScene(GraphicsDevice graphicsDevice, ImGuiRenderer imGuiRenderer)
+        : base(graphicsDevice, imGuiRenderer)
     {
-        _timer -= gameTime.ElapsedGameTime.TotalSeconds;
-
-        if (_timer <= 0.0f)
-        {
-            _timer = TickRate;
-            _tick++;
-            return true;
-        }
-
-        return false;
-    }
-}
-
-public class PlaygroundScene : Scene
-{
-    private readonly Ticker _ticker = new();
-    protected readonly World World = World.Create();
-
-    // Systems
-    private readonly RenderingSystem _renderingSystem;
-    private readonly InferenceSystem _inferenceSystem;
-    private readonly BehaviourSystem _behaviourSystem;
-    private readonly SensorSystem _sensorSystem;
-
-    public PlaygroundScene(GraphicsDevice graphicsDevice, ImGuiRenderer imGuiRenderer)
-        : base("Playground", graphicsDevice, imGuiRenderer)
-    {
-        _renderingSystem = new RenderingSystem(World, graphicsDevice, SpriteBatch);
-        _inferenceSystem = new InferenceSystem(World);
-        _behaviourSystem = new BehaviourSystem(World);
-        _sensorSystem = new SensorSystem(World);
     }
 
     protected override void OnCreate()
@@ -160,36 +120,5 @@ public class PlaygroundScene : Scene
                 agent.Get<WorkingMemory>().Memory["infected"] = true;
             }
         }
-    }
-
-    protected override void OnUpdate(GameTime gameTime)
-    {
-        if (_ticker.Tick(gameTime))
-        {
-            _sensorSystem.Execute();
-            _inferenceSystem.Execute();
-            _behaviourSystem.Execute();
-        }
-    }
-
-    protected override void OnDestroy()
-    {
-    }
-
-    protected override void OnDraw(GameTime gameTime)
-    {
-        _renderingSystem.Execute();
-    }
-
-    protected override void OnGui()
-    {
-        ImGui.Begin("Playground", ImGuiWindowFlags.AlwaysAutoResize);
-        ImGui.Text($"Step: {_ticker.Ticks}");
-        World.Query(new QueryDescription().WithAll<WorkingMemory, Name>(), (ref WorkingMemory memory, ref Name name) =>
-        {
-            var infected = memory.Memory.ContainsKey("infected");
-            ImGui.Text("Agent: " + name.Value + " " + (infected ? "Infected" : "Healthy"));
-        });
-        ImGui.End();
     }
 }
