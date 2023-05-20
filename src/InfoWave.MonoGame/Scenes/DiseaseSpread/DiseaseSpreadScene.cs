@@ -34,15 +34,29 @@ public class DiseaseSpreadScene : PlaygroundScene
                     }
                 });
         }));
+        
         var arena = World.CreateArena(48, 24).Get<Grid>();
-        arena[7, 2] = 1;
-        arena[7, 3] = 1;
-        arena[7, 4] = 1;
-        arena[7, 5] = 1;
+        // arena[7, 2] = 1;
+        // arena[7, 3] = 1;
+        // arena[7, 4] = 1;
+        // arena[7, 5] = 1;
 
-        for (var i = 0; i < 6; i++)
+        var agents = new HashSet<string>();
+        while (agents.Count < 40)
         {
-            var agent = World.CreateAgent($"Agent {i}", 2 + i * 2, 3 + i * 4);
+            var i = agents.Count;
+            var x = Random.Shared.Next(1, 47);
+            var y = Random.Shared.Next(1, 23);
+            var z = $"{x}:{y}";
+            
+            if (agents.Contains(z))
+            {
+                continue;
+            }
+
+            agents.Add(z);
+            
+            var agent = World.CreateAgent($"Agent {i}", x, y);
             var inferences = agent.Get<Inference>();
             inferences.Rules.Add((memory) =>
             {
@@ -137,5 +151,20 @@ public class DiseaseSpreadScene : PlaygroundScene
                 agent.Get<WorkingMemory>().Memory["infected"] = true;
             }
         }
+    }
+
+    protected override bool ShouldUpdate()
+    {
+        var survivors = false;
+        World.Query(in new QueryDescription()
+            .WithAll<Tile>(),
+            (ref Tile tile) =>
+            {
+                if (tile.Index == 0)
+                {
+                    survivors = true;
+                }
+            });
+        return survivors;
     }
 }

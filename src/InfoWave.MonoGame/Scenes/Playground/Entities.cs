@@ -10,7 +10,7 @@ public static class Entities
             new Name(name),
             new Tile(0),
             new Position(x, y),
-            new Sight(5),
+            new Sight(8),
             new WorkingMemory(),
             new Inference(),
             new Behaviour());
