@@ -21,17 +21,18 @@ public class DiseaseSpreadScene : PlaygroundScene
     {
         Systems.Add(new Playground.System(() =>
         {
-            World.Query(in new QueryDescription().WithAll<WorkingMemory, Tile>(), (ref WorkingMemory memory, ref Tile tile) =>
-            {
-                if (memory.Memory.TryGetValue("infected", out object obj) && (bool)obj)
+            World.Query(in new QueryDescription().WithAll<WorkingMemory, Tile>(),
+                (ref WorkingMemory memory, ref Tile tile) =>
                 {
-                    tile.Index = 1;
-                }
-                else
-                {
-                    tile.Index = 0;
-                }
-            });
+                    if (memory.Memory.TryGetValue("infected", out object obj) && (bool)obj)
+                    {
+                        tile.Index = 1;
+                    }
+                    else
+                    {
+                        tile.Index = 0;
+                    }
+                });
         }));
         var arena = World.CreateArena(48, 24).Get<Grid>();
         arena[7, 2] = 1;
@@ -90,6 +91,7 @@ public class DiseaseSpreadScene : PlaygroundScene
 
                 var position = (Position)memory["position"];
                 var positions = (Dictionary<string, Position>)memory["positions"];
+                var visible = (Dictionary<string, bool>)memory["visible"];
                 var visited = memory.GetOr("visited", () => new HashSet<string>());
                 var told = memory.GetOr("told", () => new HashSet<string>());
                 // find closest agent not yet visited
@@ -104,7 +106,7 @@ public class DiseaseSpreadScene : PlaygroundScene
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
                 if (sorted.Key is not null)
                 {
-                    if (sorted.Value.SquaredDistance(position) == 1)
+                    if (sorted.Value.SquaredDistance(position) == 1 && visible[sorted.Key])
                     {
                         return new[]
                         {

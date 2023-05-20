@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Arch.Core;
 using Arch.Core.Extensions;
+using InfoWave.MonoGame.Common.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SpriteFontPlus;
@@ -22,7 +23,7 @@ public class System : ISystem
     {
         _action = action;
     }
-    
+
     public void Execute()
     {
         _action();
@@ -50,7 +51,7 @@ public class RenderingSystem
             Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0004.png"),
             Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0005.png"),
         };
-        
+
         _walls = new[]
         {
             Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0017.png"),
@@ -200,28 +201,71 @@ public class SensorSystem
 
     public void Execute()
     {
-        var query = new QueryDescription().WithAll<WorkingMemory, Name>();
-        _world.Query(in query, (ref WorkingMemory workingMemory, ref Name self) =>
-        {
-            var memory = workingMemory.Memory;
-            memory["name"] = self.Value;
-            var agentsQuery = new QueryDescription().WithAll<Name, Position>();
-            var positions = memory.TryGetValue("positions", out var value)
-                ? (Dictionary<string, Position>)value
-                : new Dictionary<string, Position>();
-            memory["positions"] = positions;
-            var selfName = self.Value;
-            _world.Query(in agentsQuery, (ref Name name, ref Position position) =>
+        _world.Query(in new QueryDescription()
+                .WithAll<WorkingMemory, Name>(),
+            (ref WorkingMemory workingMemory, ref Name name) => { workingMemory.Memory["name"] = name.Value; });
+
+        _world.Query(in new QueryDescription()
+                .WithAll<WorkingMemory, Position>(),
+            (ref WorkingMemory workingMemory, ref Position position) => { workingMemory.Memory["position"] = position; });
+        
+        _world.Query(in new QueryDescription()
+                .WithAll<WorkingMemory, Name, Sight, Position>(),
+            (in Entity entity) =>
             {
-                if (name.Value == selfName)
-                {
-                    memory["position"] = position;
-                }
-                else
-                {
-                    positions[name.Value] = position;
-                }
+                var memory = entity.Get<WorkingMemory>().Memory;
+                var name = entity.Get<Name>();
+                var position = entity.Get<Position>();
+                var sight = entity.Get<Sight>();
+
+                var positions = memory.GetOr("positions", () => new Dictionary<string, Position>());
+                var visible = memory.GetOr("visible", () => new Dictionary<string, bool>());
+                var range = sight.Range * sight.Range; 
+                _world.Query(in new QueryDescription()
+                        .WithAll<Name, Position>(),
+                    (ref Name otherName, ref Position otherPosition) =>
+                    {
+                        if (otherName.Value == name.Value)
+                        {
+                            return;
+                        }
+                        
+                        if (otherPosition.SquaredDistance(position) < range)
+                        {
+                            positions[otherName.Value] = otherPosition;
+                            visible[otherName.Value] = true;
+                        }
+                        else
+                        {
+                            visible[otherName.Value] = false;
+                        }
+                    });
             });
-        });
+        
+        // _world.Query(in new QueryDescription()
+        //     .WithAll<WorkingMemory, Name, Sight>(),
+        //     (ref WorkingMemory workingMemory, ref Name self, ref Sight sight) =>
+        // {
+        //     var memory = workingMemory.Memory;
+        //     memory["name"] = self.Value;
+        //     
+        //     var positions = memory.GetOr("positions", () => new Dictionary<string, Position>());
+        //     memory["positions"] = positions;
+        //     
+        //     var selfName = self.Value;
+        //     _world.Query(in new QueryDescription()
+        //         .WithAll<Name, Position>(),
+        //         (ref Name name, ref Position position) =>
+        //     {
+        //         if (name.Value == selfName)
+        //         {
+        //             memory["position"] = position;
+        //         }
+        //         else if ()
+        //         {
+        //             positions[name.Value] = position;
+        //         }
+        //     });
+        // });
     }
 }

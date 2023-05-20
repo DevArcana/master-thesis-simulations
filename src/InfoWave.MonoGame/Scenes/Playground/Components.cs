@@ -43,6 +43,16 @@ public struct Tile
     }
 }
 
+public struct Sight
+{
+    public int Range;
+    
+    public Sight(int range)
+    {
+        Range = range;
+    }
+}
+
 public struct Position : IEquatable<Position>
 {
     public int X;
