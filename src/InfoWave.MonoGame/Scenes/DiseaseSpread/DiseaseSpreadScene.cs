@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Arch.Core;
 using Arch.Core.Extensions;
 using InfoWave.MonoGame.Common.Utils;
 using InfoWave.MonoGame.Core.Gui;
@@ -18,6 +19,20 @@ public class DiseaseSpreadScene : PlaygroundScene
 
     protected override void OnCreate()
     {
+        Systems.Add(new Playground.System(() =>
+        {
+            World.Query(in new QueryDescription().WithAll<WorkingMemory, Tile>(), (ref WorkingMemory memory, ref Tile tile) =>
+            {
+                if (memory.Memory.TryGetValue("infected", out object obj) && (bool)obj)
+                {
+                    tile.Index = 1;
+                }
+                else
+                {
+                    tile.Index = 0;
+                }
+            });
+        }));
         var arena = World.CreateArena(48, 24).Get<Grid>();
         arena[7, 2] = 1;
         arena[7, 3] = 1;

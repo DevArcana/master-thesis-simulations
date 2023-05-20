@@ -9,6 +9,26 @@ using SpriteFontPlus;
 
 namespace InfoWave.MonoGame.Scenes.Playground;
 
+public interface ISystem
+{
+    void Execute();
+}
+
+public class System : ISystem
+{
+    private readonly Action _action;
+
+    public System(Action action)
+    {
+        _action = action;
+    }
+    
+    public void Execute()
+    {
+        _action();
+    }
+}
+
 public class RenderingSystem
 {
     private const int TileSize = 16;
@@ -17,6 +37,7 @@ public class RenderingSystem
     private readonly SpriteBatch _spriteBatch;
 
     private readonly Texture2D[] _tiles;
+    private readonly Texture2D[] _walls;
     private readonly SpriteFont _font;
 
     public RenderingSystem(World world, GraphicsDevice graphicsDevice, SpriteBatch spriteBatch)
@@ -27,8 +48,13 @@ public class RenderingSystem
         _tiles = new[]
         {
             Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0004.png"),
-            Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0145.png"),
+            Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0005.png"),
+        };
+        
+        _walls = new[]
+        {
             Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0017.png"),
+            Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0145.png"),
         };
 
         var fontBakeResult = TtfFontBaker.Bake(File.ReadAllBytes(@"Assets/Fonts/Inter.ttf"),
@@ -49,11 +75,11 @@ public class RenderingSystem
 
     private void RenderAgents()
     {
-        var query = new QueryDescription().WithAll<Position, Name>();
-        _world.Query(in query, (ref Position pos, ref Name name) =>
+        var query = new QueryDescription().WithAll<Position, Name, Tile>();
+        _world.Query(in query, (ref Position pos, ref Name name, ref Tile tile) =>
         {
             _spriteBatch.Draw(
-                _tiles[0],
+                _tiles[tile.Index],
                 new Rectangle(
                     TileSize * pos.X,
                     TileSize * pos.Y,
@@ -83,7 +109,7 @@ public class RenderingSystem
                 {
                     var tile = grid[x, y];
                     _spriteBatch.Draw(
-                        _tiles[2 - tile],
+                        _walls[tile],
                         new Rectangle(
                             TileSize * x,
                             TileSize * y,

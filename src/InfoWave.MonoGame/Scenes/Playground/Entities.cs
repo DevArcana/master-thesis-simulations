@@ -8,6 +8,7 @@ public static class Entities
     {
         var agent = world.Create(
             new Name(name),
+            new Tile(0),
             new Position(x, y),
             new WorkingMemory(),
             new Inference(),

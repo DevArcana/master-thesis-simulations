@@ -17,14 +17,27 @@ public class Ticker
     private long _tick = 0;
     private double _timer = 0;
 
-    private const double TickRate = 0.1f;
+    private const double TickRate = 0.01f;
 
     public long Ticks => _tick;
 
-    public bool Tick(GameTime gameTime)
+    public Ticker()
+    {
+        _timer = TickRate;
+    }
+    
+    public void Advance()
+    {
+        _timer = 0;
+    }
+
+    public void Advance(GameTime gameTime)
     {
         _timer -= gameTime.ElapsedGameTime.TotalSeconds;
+    }
 
+    public bool Tick()
+    {
         if (_timer <= 0.0f)
         {
             _timer = TickRate;
@@ -39,6 +52,7 @@ public class Ticker
 public class PlaygroundScene : Scene
 {
     private readonly Ticker _ticker = new();
+    private bool _paused = true;
     protected readonly World World = World.Create();
 
     // Systems
@@ -46,6 +60,7 @@ public class PlaygroundScene : Scene
     private readonly InferenceSystem _inferenceSystem;
     private readonly BehaviourSystem _behaviourSystem;
     private readonly SensorSystem _sensorSystem;
+    protected readonly List<ISystem> Systems = new();
 
     public PlaygroundScene(GraphicsDevice graphicsDevice, ImGuiRenderer imGuiRenderer)
         : base("Playground", graphicsDevice, imGuiRenderer)
@@ -162,13 +177,24 @@ public class PlaygroundScene : Scene
         }
     }
 
+    protected virtual bool ShouldUpdate() => true;
+    
     protected override void OnUpdate(GameTime gameTime)
     {
-        if (_ticker.Tick(gameTime))
+        if (!_paused && ShouldUpdate())
+        {
+            _ticker.Advance(gameTime);
+        }
+        
+        if (_ticker.Tick())
         {
             _sensorSystem.Execute();
             _inferenceSystem.Execute();
             _behaviourSystem.Execute();
+            foreach (var system in Systems)
+            {
+                system.Execute();
+            }
         }
     }
 
@@ -184,6 +210,15 @@ public class PlaygroundScene : Scene
     protected override void OnGui()
     {
         ImGui.Begin("Playground", ImGuiWindowFlags.AlwaysAutoResize);
+        if (ImGui.Button(_paused ? "Play" : "Pause"))
+        {
+            _paused = !_paused;
+        }
+
+        if (ImGui.Button("Next"))
+        {
+            _ticker.Advance();
+        }
         ImGui.Text($"Step: {_ticker.Ticks}");
         World.Query(new QueryDescription().WithAll<WorkingMemory, Name>(), (ref WorkingMemory memory, ref Name name) =>
         {

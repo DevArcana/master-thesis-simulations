@@ -33,6 +33,16 @@ public class Behaviour
     }
 }
 
+public struct Tile
+{
+    public int Index;
+    
+    public Tile(int index)
+    {
+        Index = index;
+    }
+}
+
 public struct Position : IEquatable<Position>
 {
     public int X;
