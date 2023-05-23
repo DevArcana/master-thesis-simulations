@@ -42,9 +42,20 @@ public class DiseaseSpreadScene : PlaygroundScene
                             s++;
                             break;
                         case InfectionStatus.Infected:
-                            memory.Memory["infection"] = "infected";
-                            tile.Index = 1;
-                            i++;
+                            infection.Life--;
+                            if (infection.Life == 0)
+                            {
+                                infection.Status = InfectionStatus.Removed;
+                                memory.Memory["infection"] = "removed";
+                                tile.Index = 2;
+                                r++;
+                            }
+                            else
+                            {
+                                memory.Memory["infection"] = "infected";
+                                tile.Index = 1;
+                                i++;
+                            }
                             break;
                         case InfectionStatus.Removed:
                             memory.Memory["infection"] = "removed";

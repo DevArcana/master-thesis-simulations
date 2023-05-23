@@ -63,6 +63,7 @@ public enum InfectionStatus
 public struct Infection
 {
     public InfectionStatus Status;
+    public int Life;
 }
 
 public struct Position : IEquatable<Position>
