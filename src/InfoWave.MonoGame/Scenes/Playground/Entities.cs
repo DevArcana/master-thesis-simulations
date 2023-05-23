@@ -11,6 +11,7 @@ public static class Entities
             new Tile(0),
             new Position(x, y),
             new Sight(8),
+            new Infection() { Status = InfectionStatus.Susceptible },
             new WorkingMemory(),
             new Inference(),
             new Behaviour());

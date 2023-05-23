@@ -50,6 +50,7 @@ public class RenderingSystem
         {
             Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0004.png"),
             Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0005.png"),
+            Texture2D.FromFile(graphicsDevice, @"Assets/KenneyMicroRoguelike/Tiles/Colored/tile_0006.png"),
         };
 
         _walls = new[]
@@ -220,13 +221,15 @@ public class SensorSystem
 
                 var positions = memory.GetOr("positions", () => new Dictionary<string, Position>());
                 var visible = memory.GetOr("visible", () => new Dictionary<string, bool>());
+                var infected = memory.GetOr("infected", () => new Dictionary<string, string>());
                 var range = sight.Range * sight.Range; 
                 _world.Query(in new QueryDescription()
-                        .WithAll<Name, Position>(),
-                    (ref Name otherName, ref Position otherPosition) =>
+                        .WithAll<Name, Position, Infection>(),
+                    (ref Name otherName, ref Position otherPosition, ref Infection infection) =>
                     {
                         if (otherName.Value == name.Value)
                         {
+                            infected[otherName.Value] = infection.Status.ToString().ToLower();
                             return;
                         }
                         
@@ -234,6 +237,7 @@ public class SensorSystem
                         {
                             positions[otherName.Value] = otherPosition;
                             visible[otherName.Value] = true;
+                            infected[otherName.Value] = infection.Status.ToString().ToLower();
                         }
                         else
                         {

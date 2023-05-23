@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.AccessControl;
 using Arch.Core;
 using Arch.Core.Extensions;
 using InfoWave.MonoGame.Common.Utils;
@@ -21,32 +22,37 @@ public class DiseaseSpreadScene : PlaygroundScene
     {
         Systems.Add(new Playground.System(() =>
         {
-            World.Query(in new QueryDescription().WithAll<WorkingMemory, Tile>(),
-                (ref WorkingMemory memory, ref Tile tile) =>
+            World.Query(in new QueryDescription().WithAll<Infection, Tile, WorkingMemory>(),
+                (ref Infection infection, ref Tile tile, ref WorkingMemory memory) =>
                 {
-                    if (memory.Memory.TryGetValue("infected", out object obj) && (bool)obj)
+                    switch (infection.Status)
                     {
-                        tile.Index = 1;
-                    }
-                    else
-                    {
-                        tile.Index = 0;
+                        case InfectionStatus.Susceptible:
+                            memory.Memory["infection"] = "susceptible";
+                            tile.Index = 0;
+                            break;
+                        case InfectionStatus.Infected:
+                            memory.Memory["infection"] = "infected";
+                            tile.Index = 1;
+                            break;
+                        case InfectionStatus.Removed:
+                            memory.Memory["infection"] = "removed";
+                            tile.Index = 2;
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                 });
         }));
-        
+        var random = new Random(13);
         var arena = World.CreateArena(48, 24).Get<Grid>();
-        // arena[7, 2] = 1;
-        // arena[7, 3] = 1;
-        // arena[7, 4] = 1;
-        // arena[7, 5] = 1;
 
         var agents = new HashSet<string>();
         while (agents.Count < 40)
         {
             var i = agents.Count;
-            var x = Random.Shared.Next(1, 47);
-            var y = Random.Shared.Next(1, 23);
+            var x = random.Next(1, 47);
+            var y = random.Next(1, 23);
             var z = $"{x}:{y}";
             
             if (agents.Contains(z))
@@ -57,16 +63,6 @@ public class DiseaseSpreadScene : PlaygroundScene
             agents.Add(z);
             
             var agent = World.CreateAgent($"Agent {i}", x, y);
-            var inferences = agent.Get<Inference>();
-            inferences.Rules.Add((memory) =>
-            {
-                var messages = memory.GetOr("messages", () => new List<string>());
-                if (messages.Any())
-                {
-                    messages.Clear();
-                    memory["infected"] = true;
-                }
-            });
             var behaviour = agent.Get<Behaviour>();
             behaviour.Rules.Add((memory) =>
             {
@@ -98,7 +94,7 @@ public class DiseaseSpreadScene : PlaygroundScene
             });
             behaviour.Rules.Add((memory) =>
             {
-                if (!memory.ContainsKey("infected") || memory.ContainsKey("collided"))
+                if (memory.ContainsKey("collided"))
                 {
                     return new Descriptor[] { };
                 }
@@ -106,14 +102,28 @@ public class DiseaseSpreadScene : PlaygroundScene
                 var position = (Position)memory["position"];
                 var positions = (Dictionary<string, Position>)memory["positions"];
                 var visible = (Dictionary<string, bool>)memory["visible"];
+                var infected = (Dictionary<string, string>)memory["infected"];
                 var visited = memory.GetOr("visited", () => new HashSet<string>());
-                var told = memory.GetOr("told", () => new HashSet<string>());
                 // find closest agent not yet visited
+                Enum.TryParse<InfectionStatus>(infected[(string)memory["name"]], true, out var status);
 
+                if (status == InfectionStatus.Removed)
+                {
+                    return new Descriptor[] { };
+                }
+
+                if (status == InfectionStatus.Susceptible)
+                {
+                    return new[]
+                    {
+                        new MoveDescriptor() {Velocity = new Position(random.Next(-1, 2), random.Next(-1, 2))}
+                    };
+                }
+                
                 var sorted = positions
                     .Where(x =>
                         !visited.Contains(x.Key)
-                        && !told.Contains(x.Key))
+                        && infected.TryGetValue(x.Key, out var inf) && inf == "susceptible")
                     .OrderBy(x => x.Value.SquaredDistance(position))
                     .FirstOrDefault();
 
@@ -124,10 +134,7 @@ public class DiseaseSpreadScene : PlaygroundScene
                     {
                         return new[]
                         {
-                            new TellDescriptor(sorted.Value - position, "message")
-                            {
-                                OnSuccess = (_ => { told.Add(sorted.Key); })
-                            }
+                            new InfectDescriptor(sorted.Value - position)
                         };
                     }
                     else
@@ -148,7 +155,7 @@ public class DiseaseSpreadScene : PlaygroundScene
 
             if (i == 3)
             {
-                agent.Get<WorkingMemory>().Memory["infected"] = true;
+                agent.Get<Infection>().Status = InfectionStatus.Infected;
             }
         }
     }
@@ -157,10 +164,10 @@ public class DiseaseSpreadScene : PlaygroundScene
     {
         var survivors = false;
         World.Query(in new QueryDescription()
-            .WithAll<Tile>(),
-            (ref Tile tile) =>
+            .WithAll<Infection>(),
+            (ref Infection infection) =>
             {
-                if (tile.Index == 0)
+                if (infection.Status == InfectionStatus.Susceptible)
                 {
                     survivors = true;
                 }

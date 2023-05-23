@@ -22,6 +22,8 @@ public class MoveDescriptor : Descriptor
         ref var position = ref entity.Get<Position>();
         var x = position.X + Velocity.X;
         var y = position.Y + Velocity.Y;
+        position.PrevX = position.X;
+        position.PrevY = position.Y;
         var collided = false;
         world.Query(in new QueryDescription().WithAll<Position>(), (ref Position pos) =>
         {
@@ -39,6 +41,32 @@ public class MoveDescriptor : Descriptor
         }
         
         return false;
+    }
+}
+
+public class InfectDescriptor : Descriptor
+{
+    public Position Direction;
+
+    public InfectDescriptor(Position direction)
+    {
+        Direction = direction;
+    }
+
+    public override bool Execute(Entity entity, World world)
+    {
+        var position = entity.Get<Position>() + Direction;
+        world.Query(new QueryDescription().WithAll<Position, Infection>(), (ref Position pos, ref Infection infection) =>
+        {
+            if ((pos.X == position.X && pos.Y == position.Y) || (pos.PrevX == position.X && pos.PrevY == position.Y))
+            {
+                if (infection.Status == InfectionStatus.Susceptible)
+                {
+                    infection.Status = InfectionStatus.Infected;
+                }
+            }
+        });
+        return true;
     }
 }
 

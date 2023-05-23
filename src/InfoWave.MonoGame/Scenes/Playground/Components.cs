@@ -53,25 +53,48 @@ public struct Sight
     }
 }
 
+public enum InfectionStatus
+{
+    Susceptible,
+    Infected,
+    Removed
+}
+
+public struct Infection
+{
+    public InfectionStatus Status;
+}
+
 public struct Position : IEquatable<Position>
 {
     public int X;
     public int Y;
+
+    public int PrevX;
+    public int PrevY;
 
     public Position(int x, int y)
     {
         X = x;
         Y = y;
     }
+
+    public Position(int x, int y, int prevX, int prevY)
+    {
+        X = x;
+        Y = y;
+        PrevX = prevX;
+        PrevY = prevY;
+    }
     
     public static Position operator +(Position a, Position b)
     {
-        return new Position(a.X + b.X, a.Y + b.Y);
+        return new Position(a.X + b.X, a.Y + b.Y, a.X, a.Y);
     }
     
     public static Position operator -(Position a, Position b)
     {
-        return new Position(a.X - b.X, a.Y - b.Y);
+        return new Position(a.X - b.X, a.Y - b.Y, a.X, a.Y);
     }
     
     public int SquaredDistance(Position other)
