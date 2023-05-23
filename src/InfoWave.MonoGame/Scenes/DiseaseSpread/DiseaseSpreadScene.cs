@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.AccessControl;
 using Arch.Core;
@@ -13,6 +14,8 @@ namespace InfoWave.MonoGame.Scenes.DiseaseSpread;
 
 public class DiseaseSpreadScene : PlaygroundScene
 {
+    private int t, s, i, r = 0;
+    
     public DiseaseSpreadScene(GraphicsDevice graphicsDevice, ImGuiRenderer imGuiRenderer)
         : base(graphicsDevice, imGuiRenderer)
     {
@@ -20,8 +23,14 @@ public class DiseaseSpreadScene : PlaygroundScene
 
     protected override void OnCreate()
     {
+        File.WriteAllText("data.csv", $"t,s,i,r{Environment.NewLine}");
+        
         Systems.Add(new Playground.System(() =>
         {
+            s = 0;
+            i = 0;
+            r = 0;
+            
             World.Query(in new QueryDescription().WithAll<Infection, Tile, WorkingMemory>(),
                 (ref Infection infection, ref Tile tile, ref WorkingMemory memory) =>
                 {
@@ -30,19 +39,28 @@ public class DiseaseSpreadScene : PlaygroundScene
                         case InfectionStatus.Susceptible:
                             memory.Memory["infection"] = "susceptible";
                             tile.Index = 0;
+                            s++;
                             break;
                         case InfectionStatus.Infected:
                             memory.Memory["infection"] = "infected";
                             tile.Index = 1;
+                            i++;
                             break;
                         case InfectionStatus.Removed:
                             memory.Memory["infection"] = "removed";
                             tile.Index = 2;
+                            r++;
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
                 });
+            
+            using var file = File.Open("data.csv", FileMode.Append);
+            using var writer = new StreamWriter(file);
+            writer.WriteLine($"{t},{s},{i},{r}");
+
+            t++;
         }));
         var random = new Random(13);
         var arena = World.CreateArena(48, 24).Get<Grid>();

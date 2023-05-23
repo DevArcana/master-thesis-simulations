@@ -220,11 +220,6 @@ public class PlaygroundScene : Scene
             _ticker.Advance();
         }
         ImGui.Text($"Step: {_ticker.Ticks}");
-        World.Query(new QueryDescription().WithAll<WorkingMemory, Name>(), (ref WorkingMemory memory, ref Name name) =>
-        {
-            var infected = memory.Memory.ContainsKey("infected");
-            ImGui.Text("Agent: " + name.Value + " " + (infected ? "Infected" : "Healthy"));
-        });
         ImGui.End();
     }
 }
