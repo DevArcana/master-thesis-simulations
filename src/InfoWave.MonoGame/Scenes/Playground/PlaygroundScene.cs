@@ -178,6 +178,17 @@ public class PlaygroundScene : Scene
     }
 
     protected virtual bool ShouldUpdate() => true;
+
+    public void ForceTick()
+    {
+        _sensorSystem.Execute();
+        _inferenceSystem.Execute();
+        _behaviourSystem.Execute();
+        foreach (var system in Systems)
+        {
+            system.Execute();
+        }
+    }
     
     protected override void OnUpdate(GameTime gameTime)
     {

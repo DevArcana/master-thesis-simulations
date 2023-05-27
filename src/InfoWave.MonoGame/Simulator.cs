@@ -38,6 +38,21 @@ public sealed class Simulator : Game
         _scene = new PlaygroundScene(GraphicsDevice, _imGuiRenderer);
 
         base.Initialize();
+        
+        var run = 0;
+        while (run < 100)
+        {
+            run++;
+            
+            var scene = new DiseaseSpreadScene(GraphicsDevice, _imGuiRenderer, run, "experiment1");
+            scene.Update(new GameTime());
+            for (int i = 0; i < 128; i++)
+            {
+                scene.ForceTick();
+            }
+            scene.Destroy();
+        }
+        Exit();
     }
 
     private void ImGuiFramerate()
@@ -54,25 +69,7 @@ public sealed class Simulator : Game
 
     private void ImGuiScenes()
     {
-        ImGui.Text("Scenes");
-        if (_scene is not null)
-        {
-            if (ImGui.Button($"Close [{_scene.Name}]"))
-            {
-                _scene.Destroy();
-            }
-        }
-        else
-        {
-            if (ImGui.Button("[Playground]"))
-            {
-                _scene = new PlaygroundScene(GraphicsDevice, _imGuiRenderer);
-            }
-            else if (ImGui.Button("[Disease Spread]"))
-            {
-                _scene = new DiseaseSpreadScene(GraphicsDevice, _imGuiRenderer);
-            }
-        }
+        
     }
 
     private void ImGuiLayout()

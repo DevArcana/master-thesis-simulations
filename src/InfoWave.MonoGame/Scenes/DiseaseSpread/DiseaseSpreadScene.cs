@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.AccessControl;
 using Arch.Core;
 using Arch.Core.Extensions;
 using InfoWave.MonoGame.Common.Utils;
@@ -16,64 +15,74 @@ public class DiseaseSpreadScene : PlaygroundScene
 {
     private int t, s, i, r = 0;
     
-    public DiseaseSpreadScene(GraphicsDevice graphicsDevice, ImGuiRenderer imGuiRenderer)
+    public int RunIndex = 1;
+    private string _directory;
+    private string FileName => $"{_directory}/{RunIndex}.csv";
+    
+    public DiseaseSpreadScene(GraphicsDevice graphicsDevice, ImGuiRenderer imGuiRenderer, int runIndex, string directory)
         : base(graphicsDevice, imGuiRenderer)
     {
+        RunIndex = runIndex;
+        _directory = directory;
+        Directory.CreateDirectory(_directory);
+    }
+
+    public void GatherDataLine()
+    {
+        s = 0;
+        i = 0;
+        r = 0;
+            
+        World.Query(in new QueryDescription().WithAll<Infection, Tile, WorkingMemory>(),
+            (ref Infection infection, ref Tile tile, ref WorkingMemory memory) =>
+            {
+                switch (infection.Status)
+                {
+                    case InfectionStatus.Susceptible:
+                        memory.Memory["infection"] = "susceptible";
+                        tile.Index = 0;
+                        s++;
+                        break;
+                    case InfectionStatus.Infected:
+                        infection.Life--;
+                        if (infection.Life == 0)
+                        {
+                            infection.Status = InfectionStatus.Removed;
+                            memory.Memory["infection"] = "removed";
+                            tile.Index = 2;
+                            r++;
+                        }
+                        else
+                        {
+                            memory.Memory["infection"] = "infected";
+                            tile.Index = 1;
+                            i++;
+                        }
+                        break;
+                    case InfectionStatus.Removed:
+                        memory.Memory["infection"] = "removed";
+                        tile.Index = 2;
+                        r++;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            });
+            
+        using var file = File.Open(FileName, FileMode.Append);
+        using var writer = new StreamWriter(file);
+        writer.WriteLine($"{t},{s},{i},{r}");
+
+        t++;
     }
 
     protected override void OnCreate()
     {
-        File.WriteAllText("data.csv", $"t,s,i,r{Environment.NewLine}");
+        File.WriteAllText(FileName, $"t,s,i,r{Environment.NewLine}");
         
-        Systems.Add(new Playground.System(() =>
-        {
-            s = 0;
-            i = 0;
-            r = 0;
-            
-            World.Query(in new QueryDescription().WithAll<Infection, Tile, WorkingMemory>(),
-                (ref Infection infection, ref Tile tile, ref WorkingMemory memory) =>
-                {
-                    switch (infection.Status)
-                    {
-                        case InfectionStatus.Susceptible:
-                            memory.Memory["infection"] = "susceptible";
-                            tile.Index = 0;
-                            s++;
-                            break;
-                        case InfectionStatus.Infected:
-                            infection.Life--;
-                            if (infection.Life == 0)
-                            {
-                                infection.Status = InfectionStatus.Removed;
-                                memory.Memory["infection"] = "removed";
-                                tile.Index = 2;
-                                r++;
-                            }
-                            else
-                            {
-                                memory.Memory["infection"] = "infected";
-                                tile.Index = 1;
-                                i++;
-                            }
-                            break;
-                        case InfectionStatus.Removed:
-                            memory.Memory["infection"] = "removed";
-                            tile.Index = 2;
-                            r++;
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                });
-            
-            using var file = File.Open("data.csv", FileMode.Append);
-            using var writer = new StreamWriter(file);
-            writer.WriteLine($"{t},{s},{i},{r}");
-
-            t++;
-        }));
-        var random = new Random(13);
+        Systems.Add(new Playground.System(GatherDataLine));
+        
+        var random = Random.Shared;
         var arena = World.CreateArena(48, 24).Get<Grid>();
 
         var agents = new HashSet<string>();
