@@ -86,7 +86,7 @@ public class DiseaseSpreadScene : PlaygroundScene
         var arena = World.CreateArena(48, 24).Get<Grid>();
 
         var agents = new HashSet<string>();
-        while (agents.Count < 40)
+        while (agents.Count < Simulator.Population)
         {
             var i = agents.Count;
             var x = random.Next(1, 47);

@@ -12,6 +12,10 @@ namespace InfoWave.MonoGame;
 
 public sealed class Simulator : Game
 {
+    public static int Population = 16;
+    public static int Lifetime = 4;
+    public static int Sight = 2;
+    
     private ImGuiRenderer _imGuiRenderer = null!;
     private Scene? _scene;
 
@@ -38,19 +42,33 @@ public sealed class Simulator : Game
         _scene = new PlaygroundScene(GraphicsDevice, _imGuiRenderer);
 
         base.Initialize();
-        
-        var run = 0;
-        while (run < 100)
+
+        foreach (var population in new [] {16, 32, 64, 128})
         {
-            run++;
-            
-            var scene = new DiseaseSpreadScene(GraphicsDevice, _imGuiRenderer, run, "experiment1");
-            scene.Update(new GameTime());
-            for (int i = 0; i < 128; i++)
+            foreach (var lifetime in new [] {8, 16, 32, 64})
             {
-                scene.ForceTick();
+                foreach (var sight in new [] {2, 4, 8, 16})
+                {
+                    var run = 0;
+                    while (run < 100)
+                    {
+                        run++;
+
+                        Population = population;
+                        Sight = sight;
+                        Lifetime = lifetime;
+                        var path = $"experiments/experiment_{population:000}_{lifetime:000}_{sight:00}";
+                        var scene = new DiseaseSpreadScene(GraphicsDevice, _imGuiRenderer, run, path);
+                        scene.Update(new GameTime());
+                        for (var i = 0; i < 128; i++)
+                        {
+                            scene.ForceTick();
+                        }
+                        scene.Destroy();
+                    }
+                    Console.WriteLine($"Parameters: population={population}, lifetime={lifetime}, sight={sight}");
+                }
             }
-            scene.Destroy();
         }
         Exit();
     }

@@ -10,8 +10,11 @@ public static class Entities
             new Name(name),
             new Tile(0),
             new Position(x, y),
-            new Sight(8),
-            new Infection() { Status = InfectionStatus.Susceptible, Life = 24 },
+            new Sight(Simulator.Sight),
+            new Infection()
+            {
+                Status = InfectionStatus.Susceptible, Life = Simulator.Lifetime
+            },
             new WorkingMemory(),
             new Inference(),
             new Behaviour());
