@@ -86,7 +86,7 @@ public class DiseaseSpreadScene : PlaygroundScene
         int width = 48;
         int height = 48;
         
-        var arena = World.CreateArena(GraphicsDevice, "Assets/Images/map01.png").Get<Grid>();
+        var arena = World.CreateArena(GraphicsDevice, Simulator.Map).Get<Grid>();
 
         var agents = new HashSet<string>();
 

@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using ImGuiNET;
 using InfoWave.MonoGame.Core.Gui;
 using InfoWave.MonoGame.Core.Scenes;
@@ -12,9 +15,10 @@ namespace InfoWave.MonoGame;
 
 public sealed class Simulator : Game
 {
-    public static int Population = 120;
-    public static int Lifetime = 48;
-    public static int Sight = 48;
+    public static int Population = 64;
+    public static int Lifetime = 16;
+    public static int Sight = 8;
+    public static string Map = "Assets/Images/map04.png";
     
     private ImGuiRenderer _imGuiRenderer = null!;
     private Scene? _scene;
@@ -43,33 +47,56 @@ public sealed class Simulator : Game
 
         base.Initialize();
 
-        // foreach (var population in new [] {16, 32, 64, 128})
+        // var scenes = new List<DiseaseSpreadScene>();
+        //
+        // foreach (var map in new []
+        //          {
+        //              "Assets/Images/map01.png",
+        //              "Assets/Images/map02.png",
+        //              "Assets/Images/map03.png",
+        //              "Assets/Images/map04.png"
+        //          })
         // {
         //     foreach (var lifetime in new [] {8, 16, 32, 64})
         //     {
-        //         foreach (var sight in new [] {2, 4, 8, 16})
+        //         foreach (var sight in new [] {4, 8, 16})
         //         {
         //             var run = 0;
         //             while (run < 100)
         //             {
         //                 run++;
         //
-        //                 Population = population;
+        //                 Map = map;
         //                 Sight = sight;
         //                 Lifetime = lifetime;
-        //                 var path = $"experiments/experiment_{population:000}_{lifetime:000}_{sight:00}";
+        //                 var path = $"experiments2/{Map.Split("/").Last().Replace(".png", "")}_{Population:000}_{Lifetime:000}_{Sight:00}";
         //                 var scene = new DiseaseSpreadScene(GraphicsDevice, _imGuiRenderer, run, path);
         //                 scene.Update(new GameTime());
-        //                 for (var i = 0; i < 128; i++)
-        //                 {
-        //                     scene.ForceTick();
-        //                 }
-        //                 scene.Destroy();
+        //                 scenes.Add(scene);
+        //                 // for (var i = 0; i < 128; i++)
+        //                 // {
+        //                 //     scene.ForceTick();
+        //                 // }
+        //                 // scene.Destroy();
         //             }
-        //             Console.WriteLine($"Parameters: population={population}, lifetime={lifetime}, sight={sight}");
+        //             Console.WriteLine($"Parameters: map={Map} population={Population}, lifetime={Lifetime}, sight={Sight}");
         //         }
         //     }
         // }
+        //
+        // Console.WriteLine($"Scenes generated, simulating {scenes.Count} scenes");
+        //
+        // var tasks = scenes.Select((scene, i) => Task.Run(() =>
+        // {
+        //     for (var tick = 0; tick < 128; tick++)
+        //     {
+        //         scene.ForceTick();
+        //     }
+        //     scene.Destroy();
+        //     Console.WriteLine(i);
+        // }));
+        //
+        // Task.WaitAll(tasks.ToArray());
         // Exit();
     }
 
