@@ -87,6 +87,11 @@ public struct Position : IEquatable<Position>
         PrevX = prevX;
         PrevY = prevY;
     }
+
+    public Position Up => new Position(X, Y + 1);
+    public Position Down => new Position(X, Y - 1);
+    public Position Left => new Position(X - 1, Y);
+    public Position Right => new Position(X + 1, Y);
     
     public static Position operator +(Position a, Position b)
     {

@@ -56,6 +56,7 @@ public class InfectDescriptor : Descriptor
     public override bool Execute(Entity entity, World world)
     {
         var position = entity.Get<Position>() + Direction;
+        var infected = false;
         world.Query(new QueryDescription().WithAll<Position, Infection>(), (ref Position pos, ref Infection infection) =>
         {
             if ((pos.X == position.X && pos.Y == position.Y) || (pos.PrevX == position.X && pos.PrevY == position.Y))
@@ -63,10 +64,11 @@ public class InfectDescriptor : Descriptor
                 if (infection.Status == InfectionStatus.Susceptible)
                 {
                     infection.Status = InfectionStatus.Infected;
+                    infected = true;
                 }
             }
         });
-        return true;
+        return infected;
     }
 }
 

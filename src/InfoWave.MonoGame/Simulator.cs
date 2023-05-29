@@ -12,9 +12,9 @@ namespace InfoWave.MonoGame;
 
 public sealed class Simulator : Game
 {
-    public static int Population = 16;
-    public static int Lifetime = 4;
-    public static int Sight = 2;
+    public static int Population = 120;
+    public static int Lifetime = 48;
+    public static int Sight = 48;
     
     private ImGuiRenderer _imGuiRenderer = null!;
     private Scene? _scene;
@@ -39,38 +39,38 @@ public sealed class Simulator : Game
         _imGuiRenderer = new ImGuiRenderer(this);
         _imGuiRenderer.RebuildFontAtlas();
 
-        _scene = new PlaygroundScene(GraphicsDevice, _imGuiRenderer);
+        _scene = new DiseaseSpreadScene(GraphicsDevice, _imGuiRenderer, 1, "manual");
 
         base.Initialize();
 
-        foreach (var population in new [] {16, 32, 64, 128})
-        {
-            foreach (var lifetime in new [] {8, 16, 32, 64})
-            {
-                foreach (var sight in new [] {2, 4, 8, 16})
-                {
-                    var run = 0;
-                    while (run < 100)
-                    {
-                        run++;
-
-                        Population = population;
-                        Sight = sight;
-                        Lifetime = lifetime;
-                        var path = $"experiments/experiment_{population:000}_{lifetime:000}_{sight:00}";
-                        var scene = new DiseaseSpreadScene(GraphicsDevice, _imGuiRenderer, run, path);
-                        scene.Update(new GameTime());
-                        for (var i = 0; i < 128; i++)
-                        {
-                            scene.ForceTick();
-                        }
-                        scene.Destroy();
-                    }
-                    Console.WriteLine($"Parameters: population={population}, lifetime={lifetime}, sight={sight}");
-                }
-            }
-        }
-        Exit();
+        // foreach (var population in new [] {16, 32, 64, 128})
+        // {
+        //     foreach (var lifetime in new [] {8, 16, 32, 64})
+        //     {
+        //         foreach (var sight in new [] {2, 4, 8, 16})
+        //         {
+        //             var run = 0;
+        //             while (run < 100)
+        //             {
+        //                 run++;
+        //
+        //                 Population = population;
+        //                 Sight = sight;
+        //                 Lifetime = lifetime;
+        //                 var path = $"experiments/experiment_{population:000}_{lifetime:000}_{sight:00}";
+        //                 var scene = new DiseaseSpreadScene(GraphicsDevice, _imGuiRenderer, run, path);
+        //                 scene.Update(new GameTime());
+        //                 for (var i = 0; i < 128; i++)
+        //                 {
+        //                     scene.ForceTick();
+        //                 }
+        //                 scene.Destroy();
+        //             }
+        //             Console.WriteLine($"Parameters: population={population}, lifetime={lifetime}, sight={sight}");
+        //         }
+        //     }
+        // }
+        // Exit();
     }
 
     private void ImGuiFramerate()

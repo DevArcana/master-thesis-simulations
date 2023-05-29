@@ -83,17 +83,21 @@ public class DiseaseSpreadScene : PlaygroundScene
         Systems.Add(new Playground.System(GatherDataLine));
         
         var random = Random.Shared;
-        var arena = World.CreateArena(48, 24).Get<Grid>();
+        int width = 48;
+        int height = 48;
+        
+        var arena = World.CreateArena(GraphicsDevice, "Assets/Images/map01.png").Get<Grid>();
 
         var agents = new HashSet<string>();
+
         while (agents.Count < Simulator.Population)
         {
             var i = agents.Count;
-            var x = random.Next(1, 47);
-            var y = random.Next(1, 23);
+            var x = random.Next(0, width);
+            var y = random.Next(0, height);
             var z = $"{x}:{y}";
             
-            if (agents.Contains(z))
+            if (agents.Contains(z) || arena[x, y] > 0)
             {
                 continue;
             }
@@ -165,30 +169,31 @@ public class DiseaseSpreadScene : PlaygroundScene
                     .OrderBy(x => x.Value.SquaredDistance(position))
                     .FirstOrDefault();
 
+                var descriptors = new List<Descriptor>
+                {
+                    new InfectDescriptor(position - position.Up),
+                    new InfectDescriptor(position - position.Up.Left),
+                    new InfectDescriptor(position - position.Up.Right),
+                    new InfectDescriptor(position - position.Left),
+                    new InfectDescriptor(position - position.Right),
+                    new InfectDescriptor(position - position.Down),
+                    new InfectDescriptor(position - position.Down.Left),
+                    new InfectDescriptor(position - position.Down.Right)
+                };
+
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
                 if (sorted.Key is not null)
                 {
-                    if (sorted.Value.SquaredDistance(position) == 1 && visible[sorted.Key])
+                    descriptors.Add(new MoveDescriptor()
                     {
-                        return new[]
-                        {
-                            new InfectDescriptor(sorted.Value - position)
-                        };
-                    }
-                    else
-                    {
-                        return new[]
-                        {
-                            new MoveDescriptor()
-                            {
-                                Velocity = (sorted.Value - position).Capped(1),
-                                OnReject = (memory) => { memory["collided"] = (sorted.Value - position).Capped(1); }
-                            }
-                        };
-                    }
+                        Velocity = (sorted.Value - position).Capped(1),
+                        // OnReject = (memory) => { memory["collided"] = (sorted.Value - position).Capped(1); }
+                    });
                 }
+                
+                descriptors.Add(new MoveDescriptor() {Velocity = new Position(random.Next(-1, 2), random.Next(-1, 2))});
 
-                return new Descriptor[] { };
+                return descriptors;
             });
 
             if (i == 3)

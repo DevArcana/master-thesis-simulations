@@ -32,7 +32,7 @@ public class System : ISystem
 
 public class RenderingSystem
 {
-    private const int TileSize = 16;
+    private const int TileSize = 12;
 
     private readonly World _world;
     private readonly SpriteBatch _spriteBatch;
